@@ -163,7 +163,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 40vh; /* Réduit à 40% de l'écran pour voir plus la carte */
+                height: 35vh; /* Hauteur de 35% de l'écran */
                 background-color: white;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
@@ -226,10 +226,16 @@
     <!-- Script Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var map = L.map('map').setView([20, 0], 2);
+        // Initialisation de la carte avec un zoom initial de 3 et anti-répétition
+        var map = L.map('map', {
+            minZoom: 2,
+            maxZoom: 19,
+            worldCopyJump: false
+        }).setView([20, 0], 3);
 
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 19,
+            noWrap: true, // Empêche la répétition de la carte sur les côtés
             attribution: 'Tiles &copy; Esri'
         }).addTo(map);
 
@@ -313,15 +319,15 @@
         islandeMarker.bindPopup("<b>Islande 🇮🇸</b><br>Atterrissage à Keflavík (KEF).<br>Cliquez pour ouvrir le carnet.");
 
         albanieMarker.on('click', function() {
-            ouvrirVoyage([40.5, 19.8], 8, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c');
+            ouvrirVoyage([40.7, 19.9], 9, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c');
         });
 
         coreedusudMarker.on('click', function() {
-            ouvrirVoyage([36.2, 127.8], 7, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c');
+            ouvrirVoyage([36.5, 127.5], 8, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c');
         });
 
         tunisieMarker.on('click', function() {
-            map.setView([35.5, 9.8], 7);
+            map.setView([35.2, 9.8], 8);
             cacherTousLesMarqueursPrincipaux();
             remplirSidebarTunisie("Tunisie 🇹🇳 - Carnet de Voyage", tunisieEtapesPoints);
 
@@ -345,7 +351,7 @@
         });
 
         islandeMarker.on('click', function() {
-            ouvrirVoyage([64.8, -18.5], 6, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#3498db');
+            ouvrirVoyage([64.8, -18.5], 7, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#3498db');
         });
 
         function ouvrirVoyage(coordsCentre, zoom, titre, points, layerGroup, couleur) {
@@ -435,7 +441,7 @@
         }
 
         function cliquerEtapeSidebar(lat, lng, id) {
-            map.setView([lat, lng], 9);
+            map.setView([lat, lng], 10);
             activerEtape(id);
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('mobile-open');
@@ -533,7 +539,7 @@
             document.getElementById('sidebar').classList.remove('mobile-open');
             document.getElementById('mobile-toggle-btn').innerHTML = "📖 Ouvrir le carnet de route";
             
-            map.setView([20, 0], 2);
+            map.setView([20, 0], 3); // Retour au zoom initial propre de 3
             map.closePopup();
             map.invalidateSize();
         }
