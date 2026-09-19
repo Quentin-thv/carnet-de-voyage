@@ -231,11 +231,19 @@
     <!-- Script Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Initialisation de la carte avec minZoom bloqué à 3 pour éviter le fond gris / répétition
+        // Définition des limites géographiques maximales pour bloquer le déplacement vertical/horizontal hors de la carte
+        var limitesMonde = L.latLngBounds(
+            [-80, -180], // Limite Sud et Ouest
+            [85, 180]    // Limite Nord et Est
+        );
+
+        // Initialisation de la carte avec minZoom et les maxBounds configurés
         var map = L.map('map', {
             minZoom: 3,
             maxZoom: 19,
-            worldCopyJump: false
+            worldCopyJump: false,
+            maxBounds: limitesMonde,
+            maxBoundsViscosity: 1.0 // Empêche totalement de glisser hors de la zone définie
         }).setView([20, 0], 3);
 
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
