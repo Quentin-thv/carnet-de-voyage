@@ -177,6 +177,11 @@
                 transform: translateY(0);
             }
 
+            /* Force la fermeture totale sur mobile si la classe .ferme est présente */
+            #sidebar.ferme {
+                display: none !important;
+            }
+
             #map {
                 width: 100%;
                 height: 100%;
@@ -226,7 +231,6 @@
     <!-- Script Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Initialisation de la carte avec un zoom initial de 3 et anti-répétition
         var map = L.map('map', {
             minZoom: 2,
             maxZoom: 19,
@@ -235,7 +239,7 @@
 
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 19,
-            noWrap: true, // Empêche la répétition de la carte sur les côtés
+            noWrap: true,
             attribution: 'Tiles &copy; Esri'
         }).addTo(map);
 
@@ -371,6 +375,8 @@
         }
 
         function activerAffichageUI() {
+            var sidebar = document.getElementById('sidebar');
+            sidebar.classList.remove('ferme'); // Retire la classe de fermeture si présente
             document.getElementById('mobile-toggle-btn').style.display = 'block';
             map.closePopup();
         }
@@ -536,11 +542,12 @@
             
             var sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'none';
-            sidebar.classList.remove('mobile-open'); // Ferme le panneau mobile
+            sidebar.classList.remove('mobile-open');
+            sidebar.classList.add('ferme'); // Force la fermeture sur mobile
             
             var btnMobile = document.getElementById('mobile-toggle-btn');
             btnMobile.style.display = 'none';
-            btnMobile.innerHTML = "📖 Ouvrir le carnet de route"; // Réinitialise le texte du bouton mobile
+            btnMobile.innerHTML = "📖 Ouvrir le carnet de route";
             
             map.setView([20, 0], 3);
             map.closePopup();
