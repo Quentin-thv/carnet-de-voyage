@@ -148,23 +148,22 @@
             background-color: #c0392b;
         }
 
-        /* Conteneur mobile caché par défaut via opacité et visibilité pour éviter les bugs de layout */
+        /* Conteneur mobile géré par position pour éviter les bugs de premier affichage sur mobile */
         .mobile-buttons-container {
             position: absolute;
-            bottom: 20px;
+            bottom: -80px; /* Caché hors de l'écran en bas */
             left: 50%;
-            transform: translateX(-50%) scale(0);
+            transform: translateX(-50%);
             display: flex;
             gap: 10px;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1001;
+            transition: bottom 0.3s ease-in-out;
+            pointer-events: none; /* Évite les clics accidentels quand c'est caché */
         }
 
         .mobile-buttons-container.visible {
-            transform: translateX(-50%) scale(1);
-            opacity: 1;
-            z-index: 1001;
+            bottom: 20px; /* Remonte à sa place visible */
+            pointer-events: auto;
         }
 
         /* --- ADAPTATION MOBILE (Responsive) --- */
@@ -418,7 +417,6 @@
             
             if (window.innerWidth <= 768) {
                 var wrapper = document.getElementById('mobile-buttons-wrapper');
-                // Utilisation d'une classe CSS avec transition et opacité au lieu de changer brutalement le display
                 wrapper.classList.add('visible');
             }
             
