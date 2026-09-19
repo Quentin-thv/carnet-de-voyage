@@ -413,8 +413,11 @@
             sidebar.classList.remove('ferme');
             
             if (window.innerWidth <= 768) {
-                var wrapper = document.getElementById('mobile-buttons-wrapper');
-                wrapper.style.display = 'flex';
+                // Utilisation d'un court délai pour s'affranchir du blocage tactile du 1er tap sur mobile
+                setTimeout(function() {
+                    var wrapper = document.getElementById('mobile-buttons-wrapper');
+                    wrapper.style.display = 'flex';
+                }, 100);
             }
             
             map.closePopup();
