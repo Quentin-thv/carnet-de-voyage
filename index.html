@@ -245,7 +245,7 @@
             background-color: #c0392b;
         }
 
-        /* Styles spécifiques pour mobiles (hauteur réglée à 40%) */
+        /* Styles spécifiques pour mobiles (remis à 35%) */
         @media screen and (max-width: 768px) {
             header h1 {
                 font-size: 1rem;
@@ -263,7 +263,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 40vh; /* Réglé à 40% de l'écran */
+                height: 35vh; /* Remis à 35% de l'écran */
                 background-color: white;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
@@ -520,7 +520,7 @@
             `;
             points.forEach(function(pt, index) {
                 html += `
-                    <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.coords[0]}, ${pt.coords[1]}, ${pt.id})">
+                    <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.id})">
                         <h4>${pt.title}</h4>
                         <p>${pt.desc}</p>
                         ${index > 0 ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement...</div>` : ''}
@@ -552,7 +552,7 @@
 
         function creerCarteHtml(pt, avecBadge) {
             return `
-                <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.coords[0]}, ${pt.coords[1]}, ${pt.id})">
+                <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.id})">
                     <h4>${pt.title}</h4>
                     <p>${pt.desc}</p>
                     ${avecBadge ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement...</div>` : ''}
@@ -560,8 +560,8 @@
             `;
         }
 
-        function cliquerEtapeSidebar(lat, lng, id) {
-            map.setView([lat, lng], 10);
+        function cliquerEtapeSidebar(id) {
+            // Plus de zoom automatique (map.setView supprimé), on active juste l'étape sélectionnée
             activerEtape(id);
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('mobile-open');
