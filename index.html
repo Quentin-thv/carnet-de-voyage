@@ -245,7 +245,25 @@
             background-color: #c0392b;
         }
 
-        /* Styles spécifiques pour mobiles (réglé à 30%) */
+        /* Styles pour les épingles avec drapeaux intégrés */
+        .flag-pin {
+            background: white;
+            border: 2px solid #2c3e50;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .flag-pin:hover {
+            transform: scale(1.15);
+        }
+
+        /* Styles spécifiques pour mobiles (hauteur du carnet réglée à 30%) */
         @media screen and (max-width: 768px) {
             header h1 {
                 font-size: 1rem;
@@ -263,7 +281,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 30vh; /* Réglé à 30% de l'écran */
+                height: 30vh;
                 background-color: white;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
@@ -413,16 +431,27 @@
         ];
         var islandeLayerGroup = L.layerGroup();
 
-        var albanieMarker = L.marker([41.4147, 19.7206]).addTo(map);
+        // Création d'icônes personnalisées avec les drapeaux pour la vue globale
+        function creerIconeDrapeau(emoji) {
+            return L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="flag-pin">${emoji}</div>`,
+                iconSize: [38, 38],
+                iconAnchor: [19, 19],
+                popupAnchor: [0, -20]
+            });
+        }
+
+        var albanieMarker = L.marker([41.4147, 19.7206], {icon: creerIconeDrapeau('🇦🇱')}).addTo(map);
         albanieMarker.bindPopup("<b>Albanie 🇦🇱</b><br>Cliquez pour ouvrir le carnet.");
 
-        var coreedusudMarker = L.marker([37.4602, 126.4407]).addTo(map);
+        var coreedusudMarker = L.marker([37.4602, 126.4407], {icon: creerIconeDrapeau('🇰🇷')}).addTo(map);
         coreedusudMarker.bindPopup("<b>Corée du Sud 🇰🇷</b><br>Cliquez pour ouvrir le carnet.");
 
-        var tunisieMarker = L.marker([36.8510, 10.2272]).addTo(map);
+        var tunisieMarker = L.marker([36.8510, 10.2272], {icon: creerIconeDrapeau('🇹🇳')}).addTo(map);
         tunisieMarker.bindPopup("<b>Tunisie 🇹🇳</b><br>Cliquez pour ouvrir le carnet.");
 
-        var islandeMarker = L.marker([63.9850, -22.6056]).addTo(map);
+        var islandeMarker = L.marker([63.9850, -22.6056], {icon: creerIconeDrapeau('🇮🇸')}).addTo(map);
         islandeMarker.bindPopup("<b>Islande 🇮🇸</b><br>Cliquez pour ouvrir le carnet.");
 
         function attacherEvenementClic(marker, callback) {
