@@ -231,8 +231,9 @@
     <!-- Script Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // Initialisation de la carte avec minZoom bloqué à 3 pour éviter le fond gris / répétition
         var map = L.map('map', {
-            minZoom: 2,
+            minZoom: 3,
             maxZoom: 19,
             worldCopyJump: false
         }).setView([20, 0], 3);
@@ -376,7 +377,7 @@
 
         function activerAffichageUI() {
             var sidebar = document.getElementById('sidebar');
-            sidebar.classList.remove('ferme'); // Retire la classe de fermeture si présente
+            sidebar.classList.remove('ferme');
             document.getElementById('mobile-toggle-btn').style.display = 'block';
             map.closePopup();
         }
@@ -543,7 +544,7 @@
             var sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'none';
             sidebar.classList.remove('mobile-open');
-            sidebar.classList.add('ferme'); // Force la fermeture sur mobile
+            sidebar.classList.add('ferme');
             
             var btnMobile = document.getElementById('mobile-toggle-btn');
             btnMobile.style.display = 'none';
