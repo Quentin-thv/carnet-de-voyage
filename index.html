@@ -148,7 +148,7 @@
             background-color: #c0392b;
         }
 
-        /* Caché par défaut partout, géré proprement par la classe .visible sur mobile */
+        /* Caché par défaut partout */
         .mobile-buttons-container {
             display: none;
         }
@@ -187,7 +187,7 @@
                 height: 100%;
             }
 
-            /* Conteneur de base pour mobile (position fixe mais caché par défaut) */
+            /* Le conteneur mobile en absolute */
             .mobile-buttons-container {
                 position: absolute;
                 bottom: 20px;
@@ -195,11 +195,7 @@
                 transform: translateX(-50%);
                 gap: 10px;
                 z-index: 1001;
-            }
-
-            /* Affiché uniquement lorsque la classe .visible est ajoutée par le JS */
-            .mobile-buttons-container.visible {
-                display: flex !important;
+                /* Note: Le display sera géré directement en JS (flex/none) pour forcer l'affichage au 1er clic */
             }
 
             #mobile-toggle-btn {
@@ -414,11 +410,9 @@
             sidebar.classList.remove('ferme');
             
             if (window.innerWidth <= 768) {
-                // Léger délai pour s'affranchir du blocage tactile du 1er clic sur mobile
-                setTimeout(function() {
-                    var wrapper = document.getElementById('mobile-buttons-wrapper');
-                    wrapper.classList.add('visible');
-                }, 50);
+                // Forçage direct et immédiat en style en ligne pour outrepasser les blocages tactiles du 1er clic
+                var wrapper = document.getElementById('mobile-buttons-wrapper');
+                wrapper.style.display = 'flex';
             }
             
             map.closePopup();
@@ -588,8 +582,8 @@
             sidebar.classList.remove('mobile-open');
             sidebar.classList.add('ferme');
             
-            // Retirer la classe visible pour cacher les boutons sur mobile
-            document.getElementById('mobile-buttons-wrapper').classList.remove('visible');
+            // Remise à vide du style display pour cacher à nouveau les boutons
+            document.getElementById('mobile-buttons-wrapper').style.display = 'none';
             
             var btnMobile = document.getElementById('mobile-toggle-btn');
             btnMobile.innerHTML = "📖 Ouvrir le carnet de route";
