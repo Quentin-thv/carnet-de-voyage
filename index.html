@@ -222,6 +222,7 @@
             background-color: #c0392b;
         }
 
+        /* Conteneur du bouton flottant (apparaît dynamiquement au clic sur un pays) */
         .mobile-buttons-container {
             position: absolute;
             bottom: -80px;
@@ -235,8 +236,24 @@
         }
 
         .mobile-buttons-container.visible {
-            bottom: 20px;
+            bottom: 25px;
             pointer-events: auto;
+        }
+
+        #mobile-toggle-btn {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        #mobile-toggle-btn:hover {
+            background-color: #d35400;
         }
 
         @media screen and (max-width: 768px) {
@@ -256,7 +273,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 35vh;
+                height: 40vh;
                 background-color: white;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
@@ -278,19 +295,6 @@
                 width: 100%;
                 height: 100%;
             }
-
-            #mobile-toggle-btn {
-                background-color: #2c3e50;
-                color: white;
-                border: none;
-                padding: 12px 20px;
-                border-radius: 30px;
-                font-size: 0.9rem;
-                font-weight: bold;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-                cursor: pointer;
-                white-space: nowrap;
-            }
         }
     </style>
 </head>
@@ -306,7 +310,7 @@
     <header>
         <div class="header-title-container">
             <h1>🌍 Mes Voyages</h1>
-            <p class="subtitle">Cliquez sur un pays ou utilisez le bouton d'accueil</p>
+            <p class="subtitle">Cliquez sur un pays pour afficher son carnet</p>
         </div>
         <button class="btn-home-header" onclick="fermerItineraire()">🏠 Carte du Monde</button>
     </header>
@@ -316,6 +320,7 @@
             <div id="sidebar-content"></div>
         </div>
 
+        <!-- Bouton flottant qui s'affiche dynamiquement lors du clic sur un pays -->
         <div class="mobile-buttons-container" id="mobile-buttons-wrapper">
             <button id="mobile-toggle-btn" onclick="toggleSidebarMobile()">📖 Ouvrir le carnet de route</button>
         </div>
@@ -414,28 +419,28 @@
         var tunisieLayerGroup = L.layerGroup();
 
         var islandeEtapesPoints = [
-            {id: 0, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Capitale vibrante, point de départ et d'arrivée du road-trip islandais."},
-            {id: 1, coords: [64.8914, -23.7134], type: "all", title: "Étape 2 : Ólafsvík", desc: "Péninsule de Snæfellsnes, falaises abruptes et volcan englacé."},
-            {id: 2, coords: [65.6835, -18.1056], type: "all", title: "Étape 3 : Akureyri", desc: "La capitale du Nord, nichée au fond du fjord Eyjafjörður."},
-            {id: 3, coords: [65.2633, -14.4028], type: "all", title: "Étape 4 : Egilsstaðir", desc: "Grand carrefour naturel et porte d'entrée des mystérieux Fjords de l'Est."},
-            {id: 4, coords: [64.2530, -15.9348], type: "all", title: "Étape 5 : Hölmur", desc: "Immersion dans les paysages sauvages et glaciaires du Sud-Est."},
-            {id: 5, coords: [63.4186, -19.0060], type: "all", title: "Étape 6 : Vík", desc: "Célèbre village aux plages de sable noir de Reynisfjara et arches de basalte."},
-            {id: 6, coords: [63.9328, -21.0004], type: "all", title: "Étape 7 : Selfoss", desc: "Charmante ville au cœur des terres agricoles et proche du Cercle d'Or."},
-            {id: 7, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Bouclage de la Ring Road, derniers bains chauds et fin du voyage."}
+            {id: 0, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Capitale vibrante, point de départ et d'arrivée."},
+            {id: 1, coords: [64.8914, -23.7134], type: "all", title: "Étape 2 : Ólafsvík", desc: "Péninsule de Snæfellsnes."},
+            {id: 2, coords: [65.6835, -18.1056], type: "all", title: "Étape 3 : Akureyri", desc: "Capitale du Nord."},
+            {id: 3, coords: [65.2633, -14.4028], type: "all", title: "Étape 4 : Egilsstaðir", desc: "Porte des Fjords de l'Est."},
+            {id: 4, coords: [64.2530, -15.9348], type: "all", title: "Étape 5 : Hölmur", desc: "Paysages glaciaires."},
+            {id: 5, coords: [63.4186, -19.0060], type: "all", title: "Étape 6 : Vík", desc: "Plages de sable noir."},
+            {id: 6, coords: [63.9328, -21.0004], type: "all", title: "Étape 7 : Selfoss", desc: "Terres agricoles et Cercle d'Or."},
+            {id: 7, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Fin du voyage."}
         ];
         var islandeLayerGroup = L.layerGroup();
 
         var albanieMarker = L.marker([41.4147, 19.7206]).addTo(map);
-        albanieMarker.bindPopup("<b>Albanie 🇦🇱</b><br>Atterrissage à Tirana (TIA).<br>Cliquez pour ouvrir le carnet.");
+        albanieMarker.bindPopup("<b>Albanie 🇦🇱</b><br>Cliquez pour charger l'itinéraire.");
 
         var coreedusudMarker = L.marker([37.4602, 126.4407]).addTo(map);
-        coreedusudMarker.bindPopup("<b>Corée du Sud 🇰🇷</b><br>Atterrissage à Incheon / Séoul (ICN).<br>Cliquez pour ouvrir le carnet.");
+        coreedusudMarker.bindPopup("<b>Corée du Sud 🇰🇷</b><br>Cliquez pour charger l'itinéraire.");
 
         var tunisieMarker = L.marker([36.8510, 10.2272]).addTo(map);
-        tunisieMarker.bindPopup("<b>Tunisie 🇹🇳</b><br>Séjour basé à Yasmine Hammamet.<br>Cliquez pour ouvrir le carnet.");
+        tunisieMarker.bindPopup("<b>Tunisie 🇹🇳</b><br>Cliquez pour charger l'itinéraire.");
 
         var islandeMarker = L.marker([63.9850, -22.6056]).addTo(map);
-        islandeMarker.bindPopup("<b>Islande 🇮🇸</b><br>Atterrissage à Keflavík (KEF).<br>Cliquez pour ouvrir le carnet.");
+        islandeMarker.bindPopup("<b>Islande 🇮🇸</b><br>Cliquez pour charger l'itinéraire.");
 
         function attacherEvenementClic(marker, callback) {
             marker.on('click', function(e) {
@@ -448,12 +453,15 @@
             });
         }
 
+        // --- CLics sur les pays : déclenchent le chargement ET font apparaître le bouton de carnet ---
         attacherEvenementClic(albanieMarker, function() {
             ouvrirVoyage([40.7, 19.9], 9, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c');
+            afficherBoutonCarnet("Albanie 🇦🇱");
         });
 
         attacherEvenementClic(coreedusudMarker, function() {
             ouvrirVoyage([36.5, 127.5], 8, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c');
+            afficherBoutonCarnet("Corée du Sud 🇰🇷");
         });
 
         attacherEvenementClic(tunisieMarker, function() {
@@ -468,20 +476,17 @@
                 tunisieLayerGroup.addLayer(m);
             });
 
-            var ptsPart1 = tunisieEtapesPoints.filter(p => p.type === 'part1');
-            var ptsPart2 = tunisieEtapesPoints.filter(p => p.type === 'part2');
-            var ptsPart3 = tunisieEtapesPoints.filter(p => p.type === 'part3');
-
-            chargerRouteOsm(ptsPart1, tunisieLayerGroup, '#3498db');
-            chargerRouteOsm(ptsPart2, tunisieLayerGroup, '#e67e22');
-            chargerRouteOsm(ptsPart3, tunisieLayerGroup, '#2ecc71');
+            chargerRouteOsm(tunisieEtapesPoints.filter(p => p.type === 'part1'), tunisieLayerGroup, '#3498db');
+            chargerRouteOsm(tunisieEtapesPoints.filter(p => p.type === 'part2'), tunisieLayerGroup, '#e67e22');
+            chargerRouteOsm(tunisieEtapesPoints.filter(p => p.type === 'part3'), tunisieLayerGroup, '#2ecc71');
 
             tunisieLayerGroup.addTo(map);
-            activerAffichageUI();
+            afficherBoutonCarnet("Tunisie 🇹🇳");
         });
 
         attacherEvenementClic(islandeMarker, function() {
             ouvrirVoyage([64.8, -18.5], 7, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#3498db');
+            afficherBoutonCarnet("Islande 🇮🇸");
         });
 
         function ouvrirVoyage(coordsCentre, zoom, titre, points, layerGroup, couleur) {
@@ -497,19 +502,14 @@
             });
             chargerRouteOsm(points, layerGroup, couleur);
             layerGroup.addTo(map);
-            activerAffichageUI();
         }
 
-        function activerAffichageUI() {
-            var sidebar = document.getElementById('sidebar');
-            sidebar.classList.remove('ferme');
-            
-            if (window.innerWidth <= 768) {
-                var wrapper = document.getElementById('mobile-buttons-wrapper');
-                setTimeout(function() {
-                    wrapper.classList.add('visible');
-                }, 10);
-            }
+        // Fait apparaître le bouton flottant "Ouvrir le carnet de route pour [Pays]"
+        function afficherBoutonCarnet(nomPays) {
+            var wrapper = document.getElementById('mobile-buttons-wrapper');
+            var btn = document.getElementById('mobile-toggle-btn');
+            btn.innerHTML = `📖 Ouvrir le carnet : ${nomPays}`;
+            wrapper.classList.add('visible');
         }
 
         function cacherTousLesMarqueursPrincipaux() {
@@ -536,13 +536,11 @@
                     <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.coords[0]}, ${pt.coords[1]}, ${pt.id})">
                         <h4>${pt.title}</h4>
                         <p>${pt.desc}</p>
-                        ${index > 0 ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement du trajet...</div>` : ''}
+                        ${index > 0 ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement...</div>` : ''}
                     </div>
                 `;
             });
             document.getElementById('sidebar-content').innerHTML = html;
-            document.getElementById('sidebar').style.display = 'block';
-            map.invalidateSize();
         }
 
         function remplirSidebarTunisie(titreVoyage, points) {
@@ -553,18 +551,16 @@
                 </div>
             `;
             
-            html += `<div class="section-title" style="color: #3498db;">📍 1. Excursions locales & Côte</div>`;
+            html += `<div class="section-title" style="color: #3498db;">📍 1. Excursions locales</div>`;
             points.filter(p => p.type === 'part1').forEach(function(pt, index) { html += creerCarteHtml(pt, index > 0); });
 
-            html += `<div class="section-title" style="color: #e67e22;">🏜️ 2. Expédition Grand Sud & Désert</div>`;
+            html += `<div class="section-title" style="color: #e67e22;">🏜️ 2. Grand Sud & Désert</div>`;
             points.filter(p => p.type === 'part2').forEach(function(pt, index) { html += creerCarteHtml(pt, index > 0); });
 
-            html += `<div class="section-title" style="color: #2ecc71;">🏛️ 3. Excursion Nord : Tunis & Carthage</div>`;
+            html += `<div class="section-title" style="color: #2ecc71;">🏛️ 3. Nord : Tunis & Carthage</div>`;
             points.filter(p => p.type === 'part3').forEach(function(pt, index) { html += creerCarteHtml(pt, index > 0); });
 
             document.getElementById('sidebar-content').innerHTML = html;
-            document.getElementById('sidebar').style.display = 'block';
-            map.invalidateSize();
         }
 
         function creerCarteHtml(pt, avecBadge) {
@@ -572,7 +568,7 @@
                 <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.coords[0]}, ${pt.coords[1]}, ${pt.id})">
                     <h4>${pt.title}</h4>
                     <p>${pt.desc}</p>
-                    ${avecBadge ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement du trajet...</div>` : ''}
+                    ${avecBadge ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement...</div>` : ''}
                 </div>
             `;
         }
@@ -582,7 +578,7 @@
             activerEtape(id);
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('mobile-open');
-                document.getElementById('mobile-toggle-btn').innerHTML = "📖 Ouvrir le carnet de route";
+                document.getElementById('mobile-toggle-btn').innerHTML = "📖 Voir le carnet";
             }
         }
 
@@ -676,10 +672,8 @@
             sidebar.classList.remove('mobile-open');
             sidebar.classList.add('ferme');
             
+            // Masquer le bouton flottant au retour à la carte du monde
             document.getElementById('mobile-buttons-wrapper').classList.remove('visible');
-            
-            var btnMobile = document.getElementById('mobile-toggle-btn');
-            btnMobile.innerHTML = "📖 Ouvrir le carnet de route";
             
             map.setView([20, 0], zoomMinAdapte);
             map.closePopup();
