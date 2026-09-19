@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Carnet de Voyage Interactif</title>
+    
+    <!-- Intégration de Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Styles CSS -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            height: 60px;
+            box-sizing: border-box;
+            z-index: 1001;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        p.subtitle {
+            margin: 0.2rem 0 0;
+            color: #bdc3c7;
+            font-size: 0.9rem;
+        }
+
+        /* Conteneur principal sous le header */
+        .main-container {
+            display: flex;
+            flex: 1;
+            position: relative;
+            height: calc(100vh - 60px);
+        }
+
+        /* La Sidebar (Panneau latéral) */
+        #sidebar {
+            width: 420px;
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            display: none; /* Caché par défaut */
+            z-index: 1000;
+        }
+        #sidebar h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        .section-title {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+            font-weight: bold;
+        }
+        .step-card {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 0 6px 6px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .step-card:hover {
+            background: #e9ecef;
+        }
+        /* Style de mise en évidence lorsqu'on clique sur l'épingle ou la sidebar */
+        .step-card.active {
+            background: #ebf5fb;
+            border-left-color: #e74c3c;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.3);
+            transform: scale(1.02);
+        }
+        .step-card h4 {
+            margin: 0 0 5px 0;
+            color: #2980b9;
+        }
+        .step-card p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        /* Style pour le badge des distances et temps */
+        .route-info-badge {
+            margin-top: 8px;
+            display: inline-block;
+            background-color: #eef2f7;
+            color: #2c3e50;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* La Carte */
+        #map {
+            flex: 1;
+            height: 100%;
+        }
+        
+        /* Bouton flottant pour quitter l'itinéraire */
+        #quit-btn-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        .btn-quitter {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        }
+        .btn-quitter:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌍 Mes Voyages & Itinéraires sur Carte</h1>
+        <p class="subtitle">Cliquez sur un pays pour ouvrir le carnet de route détaillé</p>
+    </header>
+
+    <div class="main-container">
+        <!-- Panneau latéral pour les détails -->
+        <div id="sidebar">
+            <div id="sidebar-content"></div>
+        </div>
+
+        <!-- Bouton flottant pour quitter l'itinéraire -->
+        <div id="quit-btn-container">
+            <button class="btn-quitter" onclick="fermerItineraire()">✕ Masquer l'itinéraire</button>
+        </div>
+
+        <!-- Conteneur de la carte -->
+        <div id="map"></div>
+    </div>
+
+    <!-- Script Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 1. Initialisation de la carte
+        var map = L.map('map').setView([20, 0], 2);
+
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Tiles &copy; Esri'
+        }).addTo(map);
+
+        var iconeNormale = new L.Icon.Default();
+        var iconeRouge = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+        var listeMarqueursActifs = [];
+
+        // ==========================================
+        // DONNEES DES VOYAGES
+        // ==========================================
+        
+        var albanieEtapesPoints = [
+            {id: 0, coords: [41.3275, 19.8187], type: "all", title: "Étape 1 et 7 : Tirana", desc: "Point de départ et d'arrivée du road-trip."},
+            {id: 1, coords: [40.7058, 19.9522], type: "all", title: "Étape 2 : Berat", desc: "La ville aux mille fenêtres."},
+            {id: 2, coords: [40.0758, 20.1389], type: "all", title: "Étape 3 : Gjirokastër", desc: "Ville de pierre ottomane."},
+            {id: 3, coords: [39.8590, 20.0031], type: "all", title: "Étape 4 : Saranda", desc: "Riviera albanaise."},
+            {id: 4, coords: [40.1039, 19.7447], type: "all", title: "Étape 5 : Himarë", desc: "Plages sauvages."},
+            {id: 5, coords: [40.4650, 19.4903], type: "all", title: "Étape 6 : Vlorë", desc: "Carrefour maritime."},
+            {id: 6, coords: [41.3275, 19.8187], type: "all", title: "Étape 1 et 7 : Tirana", desc: "Fin du road-trip."}
+        ];
+        var albanieLayerGroup = L.layerGroup();
+
+        var coreeEtapesPoints = [
+            {id: 0, coords: [37.5665, 126.9780], type: "all", title: "Étape 1 et 4 : Séoul", desc: "Capitale et palais royaux."},
+            {id: 1, coords: [35.8242, 127.1480], type: "all", title: "Étape 2 : Jeonju", desc: "Village Hanok traditionnel."},
+            {id: 2, coords: [35.1796, 129.0756], type: "all", title: "Étape 3 : Busan", desc: "Marché aux poissons et plages."},
+            {id: 3, coords: [37.5665, 126.9780], type: "all", title: "Étape 1 et 4 : Séoul", desc: "Retour à la capitale."}
+        ];
+        var coreeLayerGroup = L.layerGroup();
+
+        var tunisieEtapesPoints = [
+            {id: 0, coords: [36.4000, 10.5167], type: "part1", title: "Base : Yasmine Hammamet", desc: "Point de départ de vos excursions locales."},
+            {id: 1, coords: [36.3167, 9.9333], type: "part1", title: "Zriba Olya", desc: "Ancien village berbère accroché à la montagne."},
+            {id: 2, coords: [36.4000, 9.9167], type: "part1", title: "Temples de l'eau de Zaghouan", desc: "Vestiges romains impressionnants au pied du Djebel Zaghouan."},
+            {id: 3, coords: [36.4000, 10.6167], type: "part1", title: "Hammamet", desc: "Visite de la médina fortifiée et des remparts."},
+            {id: 4, coords: [35.8256, 10.6369], type: "part1", title: "Sousse", desc: "Grande médina classée à l'UNESCO."},
+            {id: 5, coords: [35.7779, 10.6354], type: "part1", title: "Monastir", desc: "Découverte du Ribat dominant la Méditerranée."},
+            
+            {id: 6, coords: [36.4000, 10.5167], type: "part2", title: "Départ : Yasmine Hammamet", desc: "Départ matinal vers le Grand Sud."},
+            {id: 7, coords: [35.2990, 10.7078], type: "part2", title: "Colisée d'El Jem", desc: "Immense amphithéâtre romain sur la route."},
+            {id: 8, coords: [33.5439, 8.9733], type: "part2", title: "Matmata", desc: "Maisons troglodytes souterraines creusées dans la roche."},
+            {id: 9, coords: [33.4300, 9.0800], type: "part2", title: "Camp Dunes Insolites (Douz)", desc: "Nuit magique au cœur des dunes de sable fin."},
+            {id: 10, coords: [33.9297, 8.4796], type: "part2", title: "Route du Lac Salé (Chott el-Jérid)", desc: "Traversée de l'immense étendue de sel scintillant."},
+            {id: 11, coords: [34.3190, 7.9351], type: "part2", title: "Oasis de Chebika", desc: "Oasis de montagne féerique et ses cascades."},
+            {id: 12, coords: [36.4000, 10.5167], type: "part2", title: "Retour : Yasmine Hammamet", desc: "Fin de l'expédition et retour à la base."},
+
+            {id: 13, coords: [36.4000, 10.5167], type: "part3", title: "Départ : Yasmine Hammamet", desc: "Route vers la capitale et le nord."},
+            {id: 14, coords: [36.8708, 10.3417], type: "part3", title: "Sidi Bou Saïd", desc: "Village pittoresque aux maisons bleues et blanches."},
+            {id: 15, coords: [36.8528, 10.3236], type: "part3", title: "Carthage", desc: "Site archéologique punique et romain chargé d'histoire."},
+            {id: 16, coords: [36.8065, 10.1815], type: "part3", title: "Tunis", desc: "Visite de la grande médina de Tunis et de ses souks."},
+            {id: 17, coords: [36.4000, 10.5167], type: "part3", title: "Retour : Yasmine Hammamet", desc: "Fin de l'excursion et retour à la base."}
+        ];
+        var tunisieLayerGroup = L.layerGroup();
+
+        var islandeEtapesPoints = [
+            {id: 0, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Capitale vibrante, point de départ et d'arrivée du road-trip islandais."},
+            {id: 1, coords: [64.8914, -23.7134], type: "all", title: "Étape 2 : Ólafsvík", desc: "Péninsule de Snæfellsnes, falaises abruptes et volcan englacé."},
+            {id: 2, coords: [65.6835, -18.1056], type: "all", title: "Étape 3 : Akureyri", desc: "La capitale du Nord, nichée au fond du fjord Eyjafjörður."},
+            {id: 3, coords: [65.2633, -14.4028], type: "all", title: "Étape 4 : Egilsstaðir", desc: "Grand carrefour naturel et porte d'entrée des mystérieux Fjords de l'Est."},
+            {id: 4, coords: [64.2530, -15.9348], type: "all", title: "Étape 5 : Hölmur", desc: "Immersion dans les paysages sauvages et glaciaires du Sud-Est."},
+            {id: 5, coords: [63.4186, -19.0060], type: "all", title: "Étape 6 : Vík", desc: "Célèbre village aux plages de sable noir de Reynisfjara et arches de basalte."},
+            {id: 6, coords: [63.9328, -21.0004], type: "all", title: "Étape 7 : Selfoss", desc: "Charmante ville au cœur des terres agricoles et proche du Cercle d'Or."},
+            {id: 7, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Bouclage de la Ring Road, derniers bains chauds et fin du voyage."}
+        ];
+        var islandeLayerGroup = L.layerGroup();
+
+
+        // ==========================================
+        // EPINGLES PRINCIPALES (Aéroports / Pays)
+        // ==========================================
+        var albanieMarker = L.marker([41.4147, 19.7206]).addTo(map);
+        albanieMarker.bindPopup("<b>Albanie 🇦🇱</b><br>Atterrissage à Tirana (TIA).<br>Cliquez pour ouvrir le carnet.");
+
+        var coreedusudMarker = L.marker([37.4602, 126.4407]).addTo(map);
+        coreedusudMarker.bindPopup("<b>Corée du Sud 🇰🇷</b><br>Atterrissage à Incheon / Séoul (ICN).<br>Cliquez pour ouvrir le carnet.");
+
+        var tunisieMarker = L.marker([36.8510, 10.2272]).addTo(map);
+        tunisieMarker.bindPopup("<b>Tunisie 🇹🇳</b><br>Séjour basé à Yasmine Hammamet.<br>Cliquez pour ouvrir le carnet.");
+
+        var islandeMarker = L.marker([63.9850, -22.6056]).addTo(map);
+        islandeMarker.bindPopup("<b>Islande 🇮🇸</b><br>Atterrissage à Keflavík (KEF).<br>Cliquez pour ouvrir le carnet.");
+
+
+        // ==========================================
+        // GESTION DES CLICS (ALBANIE)
+        // ==========================================
+        albanieMarker.on('click', function() {
+            map.setView([40.5, 19.8], 8);
+            cacherTousLesMarqueursPrincipaux();
+            remplirSidebarSimple("Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints);
+            
+            albanieEtapesPoints.forEach(function(pt) {
+                var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b><br>${pt.desc}`);
+                m.on('click', function() { activerEtape(pt.id); });
+                listeMarqueursActifs[pt.id] = m;
+                albanieLayerGroup.addLayer(m);
+            });
+            chargerRouteOsm(albanieEtapesPoints, albanieLayerGroup, '#e74c3c');
+            albanieLayerGroup.addTo(map);
+            document.getElementById('quit-btn-container').style.display = 'block';
+            map.closePopup();
+        });
+
+
+        // ==========================================
+        // GESTION DES CLICS (COREE DU SUD)
+        // ==========================================
+        coreedusudMarker.on('click', function() {
+            map.setView([36.2, 127.8], 7);
+            cacherTousLesMarqueursPrincipaux();
+            remplirSidebarSimple("Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints);
+            
+            coreeEtapesPoints.forEach(function(pt) {
+                var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b><br>${pt.desc}`);
+                m.on('click', function() { activerEtape(pt.id); });
+                listeMarqueursActifs[pt.id] = m;
+                coreeLayerGroup.addLayer(m);
+            });
+            chargerRouteOsm(coreeEtapesPoints, coreeLayerGroup, '#e74c3c');
+            coreeLayerGroup.addTo(map);
+            document.getElementById('quit-btn-container').style.display = 'block';
+            map.closePopup();
+        });
+
+
+        // ==========================================
+        // GESTION DES CLICS (TUNISIE)
+        // ==========================================
+        tunisieMarker.on('click', function() {
+            map.setView([35.5, 9.8], 7);
+            cacherTousLesMarqueursPrincipaux();
+            remplirSidebarTunisie("Tunisie 🇹🇳 - Carnet de Voyage", tunisieEtapesPoints);
+
+            tunisieEtapesPoints.forEach(function(pt) {
+                var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b><br>${pt.desc}`);
+                m.on('click', function() { activerEtape(pt.id); });
+                listeMarqueursActifs[pt.id] = m;
+                tunisieLayerGroup.addLayer(m);
+            });
+
+            var ptsPart1 = tunisieEtapesPoints.filter(p => p.type === 'part1');
+            var ptsPart2 = tunisieEtapesPoints.filter(p => p.type === 'part2');
+            var ptsPart3 = tunisieEtapesPoints.filter(p => p.type === 'part3');
+
+            chargerRouteOsm(ptsPart1, tunisieLayerGroup, '#3498db');
+            chargerRouteOsm(ptsPart2, tunisieLayerGroup, '#e67e22');
+            chargerRouteOsm(ptsPart3, tunisieLayerGroup, '#2ecc71');
+
+            tunisieLayerGroup.addTo(map);
+            document.getElementById('quit-btn-container').style.display = 'block';
+            map.closePopup();
+        });
+
+
+        // ==========================================
+        // GESTION DES CLICS (ISLANDE)
+        // ==========================================
+        islandeMarker.on('click', function() {
+            map.setView([64.8, -18.5], 6);
+            cacherTousLesMarqueursPrincipaux();
+            remplirSidebarSimple("Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints);
+
+            islandeEtapesPoints.forEach(function(pt) {
+                var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b><br>${pt.desc}`);
+                m.on('click', function() { activerEtape(pt.id); });
+                listeMarqueursActifs[pt.id] = m;
+                islandeLayerGroup.addLayer(m);
+            });
+            chargerRouteOsm(islandeEtapesPoints, islandeLayerGroup, '#3498db');
+            islandeLayerGroup.addTo(map);
+            document.getElementById('quit-btn-container').style.display = 'block';
+            map.closePopup();
+        });
+
+
+        function cacherTousLesMarqueursPrincipaux() {
+            map.removeLayer(albanieMarker);
+            map.removeLayer(coreedusudMarker);
+            map.removeLayer(tunisieMarker);
+            map.removeLayer(islandeMarker);
+            map.removeLayer(albanieLayerGroup);
+            map.removeLayer(coreeLayerGroup);
+            map.removeLayer(tunisieLayerGroup);
+            map.removeLayer(islandeLayerGroup);
+            listeMarqueursActifs = [];
+        }
+
+
+        // ==========================================
+        // FONCTIONS POUR REMPLIR LA SIDEBAR
+        // ==========================================
+        function remplirSidebarSimple(titreVoyage, points) {
+            var html = `<h2>${titreVoyage}</h2>`;
+            points.forEach(function(pt, index) {
+                html += `
+                    <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.coords[0]}, ${pt.coords[1]}, ${pt.id})">
+                        <h4>${pt.title}</h4>
+                        <p>${pt.desc}</p>
+                        ${index > 0 ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement du trajet...</div>` : ''}
+                    </div>
+                `;
+            });
+            document.getElementById('sidebar-content').innerHTML = html;
+            document.getElementById('sidebar').style.display = 'block';
+            map.invalidateSize();
+        }
+
+        function remplirSidebarTunisie(titreVoyage, points) {
+            var html = `<h2>${titreVoyage}</h2>`;
+            
+            html += `<div class="section-title" style="color: #3498db;">📍 1. Excursions locales & Côte</div>`;
+            points.filter(p => p.type === 'part1').forEach(function(pt, index) { html += creerCarteHtml(pt, index > 0); });
+
+            html += `<div class="section-title" style="color: #e67e22;">🏜️ 2. Expédition Grand Sud & Désert</div>`;
+            points.filter(p => p.type === 'part2').forEach(function(pt, index) { html += creerCarteHtml(pt, index > 0); });
+
+            html += `<div class="section-title" style="color: #2ecc71;">🏛️ 3. Excursion Nord : Tunis & Carthage</div>`;
+            points.filter(p => p.type === 'part3').forEach(function(pt, index) { html += creerCarteHtml(pt, index > 0); });
+
+            document.getElementById('sidebar-content').innerHTML = html;
+            document.getElementById('sidebar').style.display = 'block';
+            map.invalidateSize();
+        }
+
+        function creerCarteHtml(pt, avecBadge) {
+            return `
+                <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.coords[0]}, ${pt.coords[1]}, ${pt.id})">
+                    <h4>${pt.title}</h4>
+                    <p>${pt.desc}</p>
+                    ${avecBadge ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement du trajet...</div>` : ''}
+                </div>
+            `;
+        }
+
+        function cliquerEtapeSidebar(lat, lng, id) {
+            map.setView([lat, lng], 9);
+            activerEtape(id);
+        }
+
+        function activerEtape(id) {
+            listeMarqueursActifs.forEach(function(m) {
+                if (m) m.setIcon(iconeNormale);
+            });
+
+            if (listeMarqueursActifs[id]) {
+                listeMarqueursActifs[id].setIcon(iconeRouge);
+            }
+
+            var toutesLesCartes = document.querySelectorAll('.step-card');
+            toutesLesCartes.forEach(function(c) { c.classList.remove('active'); });
+
+            var carteCible = document.getElementById('step-card-' + id);
+            if (carteCible) {
+                carteCible.classList.add('active');
+                carteCible.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+
+        // ==========================================
+        // FONCTION DE ROUTAGE AUTOMATIQUE OSRM (AVEC DISTANCES ET TEMPS)
+        // ==========================================
+        function chargerRouteOsm(points, layerGroup, couleurRoute) {
+            var coordsString = points.map(function(p) { return p.coords[1] + ',' + p.coords[0]; }).join(';');
+            var url = 'https://router.project-osrm.org/route/v1/driving/' + coordsString + '?overview=full&geometries=geojson';
+
+            fetch(url)
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.routes && data.routes.length > 0) {
+                        var route = data.routes[0];
+                        var routeCoords = route.geometry.coordinates;
+                        var latLngs = routeCoords.map(function(c) { return [c[1], c[0]]; });
+
+                        var routeLine = L.polyline(latLngs, {
+                            color: couleurRoute || '#3498db',
+                            weight: 5,
+                            opacity: 0.85
+                        });
+                        layerGroup.addLayer(routeLine);
+
+                        // Récupération des portions (legs) pour afficher les infos étape par étape
+                        if (route.legs && route.legs.length === points.length - 1) {
+                            for (var i = 0; i < route.legs.length; i++) {
+                                var leg = route.legs[i];
+                                var km = (leg.distance / 1000).toFixed(1); // Conversion en km
+                                var heures = Math.floor(leg.duration / 3600);
+                                var minutes = Math.round((leg.duration % 3600) / 60);
+                                
+                                var tempsFormate = "";
+                                if (heures > 0) { tempsFormate += heures + "h "; }
+                                tempsFormate += minutes + "min";
+
+                                var idCible = points[i + 1].id;
+                                var badgeEl = document.getElementById('info-leg-' + idCible);
+                                if (badgeEl) {
+                                    badgeEl.innerHTML = `🚗 ~${tempsFormate} (${km} km)`;
+                                }
+                            }
+                        }
+                    }
+                })
+                .catch(function(error) {
+                    console.log("Erreur routage :", error);
+                });
+        }
+
+
+        // ==========================================
+        // FERMER L'ITINERAIRE ET LA SIDEBAR
+        // ==========================================
+        function fermerItineraire() {
+            albanieLayerGroup.clearLayers();
+            coreeLayerGroup.clearLayers();
+            tunisieLayerGroup.clearLayers();
+            islandeLayerGroup.clearLayers();
+            
+            albanieMarker.addTo(map);
+            coreedusudMarker.addTo(map);
+            tunisieMarker.addTo(map);
+            islandeMarker.addTo(map);
+            
+            document.getElementById('sidebar').style.display = 'none';
+            document.getElementById('quit-btn-container').style.display = 'none';
+            
+            map.setView([20, 0], 2);
+            map.closePopup();
+            map.invalidateSize();
+        }
+
+    </script>
+
+</body>
+</html>
