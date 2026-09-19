@@ -413,11 +413,11 @@
             sidebar.classList.remove('ferme');
             
             if (window.innerWidth <= 768) {
-                // Utilisation d'un court délai pour s'affranchir du blocage tactile du 1er tap sur mobile
-                setTimeout(function() {
-                    var wrapper = document.getElementById('mobile-buttons-wrapper');
-                    wrapper.style.display = 'flex';
-                }, 100);
+                var wrapper = document.getElementById('mobile-buttons-wrapper');
+                // Force l'affichage immédiatement
+                wrapper.style.display = 'flex';
+                // Force le navigateur mobile à recalculer le layout graphique (Reflow) pour éviter le bug du 1er tap
+                void wrapper.offsetHeight;
             }
             
             map.closePopup();
