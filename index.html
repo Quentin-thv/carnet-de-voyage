@@ -103,6 +103,12 @@
             font-size: 0.8rem;
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .btn-home-header {
             background-color: #e67e22;
             color: white;
@@ -118,6 +124,25 @@
         }
         .btn-home-header:hover {
             background-color: #d35400;
+        }
+
+        /* Bouton pour réouvrir le carnet quand il a été fermé individuellement */
+        #btn-reouvrir-carnet {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: none;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        #btn-reouvrir-carnet:hover {
+            background-color: #2980b9;
         }
 
         .main-container {
@@ -136,7 +161,7 @@
             overflow-y: auto;
             padding: 20px;
             box-sizing: border-box;
-            display: none; /* Caché par défaut au démarrage */
+            display: none;
             z-index: 1000;
         }
         
@@ -222,7 +247,7 @@
             background-color: #c0392b;
         }
 
-        /* Styles spécifiques pour mobiles */
+        /* Styles spécifiques pour mobiles (hauteur de 35%) */
         @media screen and (max-width: 768px) {
             header h1 {
                 font-size: 1rem;
@@ -240,11 +265,11 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 45vh;
+                height: 35vh; /* Fixé à 35% de l'écran */
                 background-color: white;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
-                display: none; /* Géré par JS au clic */
+                display: none;
                 z-index: 1600;
             }
 
@@ -273,11 +298,14 @@
             <h1>🌍 Mes Voyages</h1>
             <p class="subtitle">Cliquez sur un pays pour ouvrir son carnet</p>
         </div>
-        <button class="btn-home-header" onclick="fermerItineraire()">🏠 Carte du Monde</button>
+        <div class="header-right">
+            <button id="btn-reouvrir-carnet" onclick="reouvrirSidebar()">📖 Ouvrir le carnet</button>
+            <button class="btn-home-header" onclick="fermerItineraireComplet()">🏠 Carte du Monde</button>
+        </div>
     </header>
 
     <div class="main-container">
-        <!-- Panneau latéral qui s'ouvre automatiquement au clic sur un pays -->
+        <!-- Panneau latéral -->
         <div id="sidebar">
             <div id="sidebar-content"></div>
         </div>
@@ -410,7 +438,6 @@
             });
         }
 
-        // --- Clics directs sur les pays (ouvre instantanément le panneau latéral) ---
         attacherEvenementClic(albanieMarker, function() {
             ouvrirVoyage([40.7, 19.9], 9, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c');
         });
@@ -463,6 +490,14 @@
             var sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'block';
             sidebar.classList.add('mobile-open');
+            document.getElementById('btn-reouvrir-carnet').style.display = 'inline-block';
+            map.invalidateSize();
+        }
+
+        function reouvrirSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            sidebar.style.display = 'block';
+            sidebar.classList.add('mobile-open');
             map.invalidateSize();
         }
 
@@ -482,7 +517,7 @@
             var html = `
                 <div class="sidebar-header">
                     <h2>${titreVoyage}</h2>
-                    <button class="btn-quitter" onclick="fermerItineraire()">✕ Fermer</button>
+                    <button class="btn-quitter" onclick="fermerCarnetSeulement()">✕ Fermer</button>
                 </div>
             `;
             points.forEach(function(pt, index) {
@@ -501,7 +536,7 @@
             var html = `
                 <div class="sidebar-header">
                     <h2>${titreVoyage}</h2>
-                    <button class="btn-quitter" onclick="fermerItineraire()">✕ Fermer</button>
+                    <button class="btn-quitter" onclick="fermerCarnetSeulement()">✕ Fermer</button>
                 </div>
             `;
             
@@ -598,7 +633,16 @@
                 });
         }
 
-        function fermerItineraire() {
+        // Ferme uniquement le panneau latéral (garde l'itinéraire affiché sur la carte)
+        function fermerCarnetSeulement() {
+            var sidebar = document.getElementById('sidebar');
+            sidebar.style.display = 'none';
+            sidebar.classList.remove('mobile-open');
+            map.invalidateSize();
+        }
+
+        // Réinitialise tout (revient à la vue de la carte du monde)
+        function fermerItineraireComplet() {
             albanieLayerGroup.clearLayers();
             coreeLayerGroup.clearLayers();
             tunisieLayerGroup.clearLayers();
@@ -612,6 +656,8 @@
             var sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'none';
             sidebar.classList.remove('mobile-open');
+            
+            document.getElementById('btn-reouvrir-carnet').style.display = 'none';
             
             map.setView([20, 0], zoomMinAdapte);
             map.closePopup();
