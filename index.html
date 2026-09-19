@@ -245,7 +245,7 @@
             background-color: #c0392b;
         }
 
-        /* Styles spécifiques pour mobiles (hauteur réduite à 30%) */
+        /* Styles spécifiques pour mobiles (hauteur remise à 35%) */
         @media screen and (max-width: 768px) {
             header h1 {
                 font-size: 1rem;
@@ -263,7 +263,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 30vh; /* Réduit à 30% de l'écran */
+                height: 35vh; /* Remis à 35% de l'écran */
                 background-color: white;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
@@ -436,16 +436,17 @@
             });
         }
 
+        /* ZOOM RÉDUIT : Passage des valeurs de zoom à des niveaux plus larges (ex: 8 au lieu de 9, 7 au lieu de 8, etc.) */
         attacherEvenementClic(albanieMarker, function() {
-            ouvrirVoyage([40.7, 19.9], 9, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c');
+            ouvrirVoyage([40.7, 19.9], 8, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c');
         });
 
         attacherEvenementClic(coreedusudMarker, function() {
-            ouvrirVoyage([36.5, 127.5], 8, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c');
+            ouvrirVoyage([36.5, 127.5], 7, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c');
         });
 
         attacherEvenementClic(tunisieMarker, function() {
-            map.setView([35.2, 9.8], 8);
+            map.setView([35.2, 9.8], 7); // Zoom réduit à 7
             cacherTousLesMarqueursPrincipaux();
             remplirSidebarTunisie("Tunisie 🇹🇳 - Carnet de Voyage", tunisieEtapesPoints);
 
@@ -465,7 +466,7 @@
         });
 
         attacherEvenementClic(islandeMarker, function() {
-            ouvrirVoyage([64.8, -18.5], 7, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#3498db');
+            ouvrirVoyage([64.8, -18.5], 6, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#3498db');
         });
 
         function ouvrirVoyage(coordsCentre, zoom, titre, points, layerGroup, couleur) {
