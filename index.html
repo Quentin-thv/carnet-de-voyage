@@ -187,13 +187,13 @@
                 height: 100%;
             }
 
-            /* Conteneur pour les boutons du bas sur mobile (Affiché via JS / Flex) */
+            /* Conteneur pour les boutons du bas sur mobile */
             .mobile-buttons-container {
                 position: absolute;
                 bottom: 20px;
                 left: 50%;
                 transform: translateX(-50%);
-                display: flex;
+                display: none; /* Géré en JS (flex) au clic */
                 gap: 10px;
                 z-index: 1001;
             }
@@ -408,9 +408,11 @@
         function activerAffichageUI() {
             var sidebar = document.getElementById('sidebar');
             sidebar.classList.remove('ferme');
+            
             if (window.innerWidth <= 768) {
                 document.getElementById('mobile-buttons-wrapper').style.display = 'flex';
             }
+            
             map.closePopup();
         }
 
