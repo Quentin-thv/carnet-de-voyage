@@ -174,18 +174,19 @@
                 height: 100%;
             }
 
-            /* Adaptation du bouton Quitter sur Mobile : placé en haut à gauche de la carte pour être visible */
+            /* Adaptation du bouton Quitter sur Mobile : Toujours au premier plan par-dessus le carnet */
             #quit-btn-container {
                 top: 15px;
                 left: 15px;
                 right: auto;
+                z-index: 1005; /* Priorité maximale pour rester visible au-dessus du tiroir */
             }
             .btn-quitter {
                 padding: 8px 12px;
                 font-size: 0.85rem;
             }
 
-            /* Bouton mobile pour ouvrir/fermer le carnet (décalé un tout petit peu pour ne pas gêner) */
+            /* Bouton mobile pour ouvrir/fermer le carnet */
             #mobile-toggle-btn {
                 position: absolute;
                 bottom: 20px;
@@ -199,7 +200,7 @@
                 font-size: 0.95rem;
                 font-weight: bold;
                 box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-                z-index: 1001;
+                z-index: 1003;
                 cursor: pointer;
                 display: none;
             }
