@@ -148,24 +148,6 @@
             background-color: #c0392b;
         }
 
-        /* Bouton de fermeture rapide flottant sur mobile */
-        #mobile-quit-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 1003;
-            cursor: pointer;
-            display: none;
-        }
-
         /* --- ADAPTATION MOBILE (Responsive) --- */
         @media screen and (max-width: 768px) {
             .main-container {
@@ -200,23 +182,43 @@
                 height: 100%;
             }
 
-            /* Bouton mobile pour ouvrir/fermer le carnet */
-            #mobile-toggle-btn {
+            /* Conteneur pour les boutons du bas sur mobile */
+            .mobile-buttons-container {
                 position: absolute;
                 bottom: 20px;
                 left: 50%;
                 transform: translateX(-50%);
+                display: flex;
+                gap: 10px;
+                z-index: 1001;
+            }
+
+            /* Bouton mobile pour ouvrir/fermer le carnet */
+            #mobile-toggle-btn {
                 background-color: #2c3e50;
                 color: white;
                 border: none;
-                padding: 12px 20px;
+                padding: 12px 16px;
                 border-radius: 30px;
-                font-size: 0.95rem;
+                font-size: 0.85rem;
                 font-weight: bold;
                 box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-                z-index: 1001;
                 cursor: pointer;
-                display: none;
+                white-space: nowrap;
+            }
+
+            /* Bouton mobile pour fermer l'itinéraire */
+            #mobile-quit-btn {
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                padding: 12px 16px;
+                border-radius: 30px;
+                font-size: 0.85rem;
+                font-weight: bold;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                cursor: pointer;
+                white-space: nowrap;
             }
         }
     </style>
@@ -234,11 +236,11 @@
             <div id="sidebar-content"></div>
         </div>
 
-        <!-- Bouton mobile pour ouvrir le carnet de route -->
-        <button id="mobile-toggle-btn" onclick="toggleSidebarMobile()">📖 Ouvrir le carnet de route</button>
-
-        <!-- Bouton flottant pour quitter l'itinéraire rapidement sur mobile -->
-        <button id="mobile-quit-btn" onclick="fermerItineraire()">✕ Quitter l'itinéraire</button>
+        <!-- Conteneur des boutons du bas sur mobile -->
+        <div class="mobile-buttons-container" id="mobile-buttons-wrapper" style="display: none;">
+            <button id="mobile-toggle-btn" onclick="toggleSidebarMobile()">📖 Ouvrir le carnet de route</button>
+            <button id="mobile-quit-btn" onclick="fermerItineraire()">✕ Fermer</button>
+        </div>
 
         <!-- Conteneur de la carte -->
         <div id="map"></div>
@@ -247,19 +249,14 @@
     <!-- Script Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Détection si l'on est sur mobile
         var estMobile = window.innerWidth <= 768;
-
-        // Zoom minimum : 2 sur mobile pour dézoomer plus, 3 sur PC
         var zoomMinAdapte = estMobile ? 2 : 3;
 
-        // Limites géographiques pour bloquer le déplacement vertical/horizontal excessif
         var limitesMonde = L.latLngBounds(
             [estMobile ? -85 : -80, -180],
             [estMobile ? 85 : 85, 180]
         );
 
-        // Initialisation de la carte
         var map = L.map('map', {
             minZoom: zoomMinAdapte,
             maxZoom: 19,
@@ -408,8 +405,7 @@
         function activerAffichageUI() {
             var sidebar = document.getElementById('sidebar');
             sidebar.classList.remove('ferme');
-            document.getElementById('mobile-toggle-btn').style.display = 'block';
-            document.getElementById('mobile-quit-btn').style.display = 'block';
+            document.getElementById('mobile-buttons-wrapper').style.display = 'flex';
             map.closePopup();
         }
 
@@ -577,12 +573,11 @@
             sidebar.classList.remove('mobile-open');
             sidebar.classList.add('ferme');
             
+            // Masquer le conteneur des deux boutons mobiles
+            document.getElementById('mobile-buttons-wrapper').style.display = 'none';
+            
             var btnMobile = document.getElementById('mobile-toggle-btn');
-            btnMobile.style.display = 'none';
             btnMobile.innerHTML = "📖 Ouvrir le carnet de route";
-
-            // Masquer le bouton de fermeture rapide mobile
-            document.getElementById('mobile-quit-btn').style.display = 'none';
             
             map.setView([20, 0], zoomMinAdapte);
             map.closePopup();
