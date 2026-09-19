@@ -534,12 +534,15 @@
             tunisieMarker.addTo(map);
             islandeMarker.addTo(map);
             
-            document.getElementById('sidebar').style.display = 'none';
-            document.getElementById('mobile-toggle-btn').style.display = 'none';
-            document.getElementById('sidebar').classList.remove('mobile-open');
-            document.getElementById('mobile-toggle-btn').innerHTML = "📖 Ouvrir le carnet de route";
+            var sidebar = document.getElementById('sidebar');
+            sidebar.style.display = 'none';
+            sidebar.classList.remove('mobile-open'); // Ferme le panneau mobile
             
-            map.setView([20, 0], 3); // Retour au zoom initial propre de 3
+            var btnMobile = document.getElementById('mobile-toggle-btn');
+            btnMobile.style.display = 'none';
+            btnMobile.innerHTML = "📖 Ouvrir le carnet de route"; // Réinitialise le texte du bouton mobile
+            
+            map.setView([20, 0], 3);
             map.closePopup();
             map.invalidateSize();
         }
