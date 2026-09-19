@@ -21,6 +21,57 @@
             height: 100vh;
             overflow: hidden;
         }
+
+        /* --- ÉCRAN D'ACCUEIL (PAGE DE GARDE) --- */
+        #welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #2c3e50, #1a252f);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #welcome-screen h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        #welcome-screen p {
+            font-size: 1.1rem;
+            color: #bdc3c7;
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+
+        .btn-welcome {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-welcome:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
         header {
             background-color: #2c3e50;
             color: white;
@@ -230,6 +281,13 @@
 </head>
 <body>
 
+    <!-- Écran de Bienvenue / Page de garde -->
+    <div id="welcome-screen">
+        <h1>🌍 Mes Voyages & Itinéraires</h1>
+        <p>Découvrez mes road-trips à travers le monde à travers des carnets de route interactifs.</p>
+        <button class="btn-welcome" onclick="entrerSurLaCarte()">✨ Commencer le voyage</button>
+    </div>
+
     <header>
         <h1>🌍 Mes Voyages & Itinéraires sur Carte</h1>
         <p class="subtitle">Cliquez sur un pays pour ouvrir le carnet de route détaillé</p>
@@ -275,6 +333,16 @@
             noWrap: true,
             attribution: 'Tiles &copy; Esri'
         }).addTo(map);
+
+        // Fonction pour faire disparaître l'écran d'accueil et rafraîchir la carte
+        function entrerSurLaCarte() {
+            var welcomeScreen = document.getElementById('welcome-screen');
+            welcomeScreen.style.opacity = '0';
+            setTimeout(function() {
+                welcomeScreen.style.display = 'none';
+                map.invalidateSize(); // Force Leaflet à bien se dimensionner
+            }, 500);
+        }
 
         var iconeNormale = new L.Icon.Default();
         var iconeRouge = new L.Icon({
@@ -416,11 +484,8 @@
             sidebar.classList.remove('ferme');
             
             if (window.innerWidth <= 768) {
-                // Petit délai asynchrone pour forcer le navigateur mobile à exécuter l'affichage du premier coup sans blocage Leaflet
-                setTimeout(function() {
-                    var wrapper = document.getElementById('mobile-buttons-wrapper');
-                    wrapper.classList.add('visible');
-                }, 50);
+                var wrapper = document.getElementById('mobile-buttons-wrapper');
+                wrapper.classList.add('visible');
             }
             
             map.closePopup();
