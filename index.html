@@ -148,9 +148,23 @@
             background-color: #c0392b;
         }
 
-        /* Caché par défaut partout */
+        /* Conteneur mobile caché par défaut via opacité et visibilité pour éviter les bugs de layout */
         .mobile-buttons-container {
-            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            display: flex;
+            gap: 10px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .mobile-buttons-container.visible {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+            z-index: 1001;
         }
 
         /* --- ADAPTATION MOBILE (Responsive) --- */
@@ -185,16 +199,6 @@
             #map {
                 width: 100%;
                 height: 100%;
-            }
-
-            /* Le conteneur mobile en absolute */
-            .mobile-buttons-container {
-                position: absolute;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                gap: 10px;
-                z-index: 1001;
             }
 
             #mobile-toggle-btn {
@@ -414,10 +418,8 @@
             
             if (window.innerWidth <= 768) {
                 var wrapper = document.getElementById('mobile-buttons-wrapper');
-                // Force l'affichage immédiatement
-                wrapper.style.display = 'flex';
-                // Force le navigateur mobile à recalculer le layout graphique (Reflow) pour éviter le bug du 1er tap
-                void wrapper.offsetHeight;
+                // Utilisation d'une classe CSS avec transition et opacité au lieu de changer brutalement le display
+                wrapper.classList.add('visible');
             }
             
             map.closePopup();
@@ -587,7 +589,7 @@
             sidebar.classList.remove('mobile-open');
             sidebar.classList.add('ferme');
             
-            document.getElementById('mobile-buttons-wrapper').style.display = 'none';
+            document.getElementById('mobile-buttons-wrapper').classList.remove('visible');
             
             var btnMobile = document.getElementById('mobile-toggle-btn');
             btnMobile.innerHTML = "📖 Ouvrir le carnet de route";
