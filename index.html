@@ -414,8 +414,11 @@
             sidebar.classList.remove('ferme');
             
             if (window.innerWidth <= 768) {
-                var wrapper = document.getElementById('mobile-buttons-wrapper');
-                wrapper.classList.add('visible');
+                // Léger délai pour s'affranchir du blocage tactile du 1er clic sur mobile
+                setTimeout(function() {
+                    var wrapper = document.getElementById('mobile-buttons-wrapper');
+                    wrapper.classList.add('visible');
+                }, 50);
             }
             
             map.closePopup();
