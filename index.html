@@ -506,7 +506,9 @@
             
             if (window.innerWidth <= 768) {
                 var wrapper = document.getElementById('mobile-buttons-wrapper');
-                wrapper.classList.add('visible');
+                setTimeout(function() {
+                    wrapper.classList.add('visible');
+                }, 50);
             }
         }
 
