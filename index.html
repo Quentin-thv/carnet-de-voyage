@@ -148,7 +148,7 @@
             background-color: #c0392b;
         }
 
-        /* Caché par défaut sur PC */
+        /* Caché par défaut partout, géré proprement par la classe .visible sur mobile */
         .mobile-buttons-container {
             display: none;
         }
@@ -187,18 +187,17 @@
                 height: 100%;
             }
 
-            /* Conteneur pour les boutons du bas sur mobile */
+            /* Conteneur de base pour mobile (position fixe mais caché par défaut) */
             .mobile-buttons-container {
                 position: absolute;
                 bottom: 20px;
                 left: 50%;
                 transform: translateX(-50%);
-                display: none; /* Caché par défaut, affiché via la classe .visible */
                 gap: 10px;
                 z-index: 1001;
             }
 
-            /* Classe pour forcer l'affichage en flex sur mobile */
+            /* Affiché uniquement lorsque la classe .visible est ajoutée par le JS */
             .mobile-buttons-container.visible {
                 display: flex !important;
             }
