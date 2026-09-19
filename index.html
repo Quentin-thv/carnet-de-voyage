@@ -126,7 +126,6 @@
             background-color: #d35400;
         }
 
-        /* Bouton pour réouvrir le carnet quand il a été fermé individuellement */
         #btn-reouvrir-carnet {
             background-color: #3498db;
             color: white;
@@ -153,7 +152,6 @@
             height: calc(100vh - 60px);
         }
 
-        /* Panneau latéral (Sidebar) */
         #sidebar {
             width: 420px;
             background-color: white;
@@ -247,7 +245,7 @@
             background-color: #c0392b;
         }
 
-        /* Styles spécifiques pour mobiles (hauteur de 35%) */
+        /* Styles spécifiques pour mobiles (hauteur réduite à 30%) */
         @media screen and (max-width: 768px) {
             header h1 {
                 font-size: 1rem;
@@ -265,7 +263,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 35vh; /* Fixé à 35% de l'écran */
+                height: 30vh; /* Réduit à 30% de l'écran */
                 background-color: white;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
@@ -633,7 +631,6 @@
                 });
         }
 
-        // Ferme uniquement le panneau latéral (garde l'itinéraire affiché sur la carte)
         function fermerCarnetSeulement() {
             var sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'none';
@@ -641,7 +638,6 @@
             map.invalidateSize();
         }
 
-        // Réinitialise tout (revient à la vue de la carte du monde)
         function fermerItineraireComplet() {
             albanieLayerGroup.clearLayers();
             coreeLayerGroup.clearLayers();
