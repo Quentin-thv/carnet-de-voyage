@@ -148,21 +148,21 @@
             background-color: #c0392b;
         }
 
-        /* Conteneur mobile géré par position pour éviter les bugs de premier affichage sur mobile */
+        /* Conteneur mobile géré par position */
         .mobile-buttons-container {
             position: absolute;
-            bottom: -80px; /* Caché hors de l'écran en bas */
+            bottom: -80px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 10px;
             z-index: 1001;
             transition: bottom 0.3s ease-in-out;
-            pointer-events: none; /* Évite les clics accidentels quand c'est caché */
+            pointer-events: none;
         }
 
         .mobile-buttons-container.visible {
-            bottom: 20px; /* Remonte à sa place visible */
+            bottom: 20px;
             pointer-events: auto;
         }
 
@@ -416,8 +416,11 @@
             sidebar.classList.remove('ferme');
             
             if (window.innerWidth <= 768) {
-                var wrapper = document.getElementById('mobile-buttons-wrapper');
-                wrapper.classList.add('visible');
+                // Petit délai asynchrone pour forcer le navigateur mobile à exécuter l'affichage du premier coup sans blocage Leaflet
+                setTimeout(function() {
+                    var wrapper = document.getElementById('mobile-buttons-wrapper');
+                    wrapper.classList.add('visible');
+                }, 50);
             }
             
             map.closePopup();
