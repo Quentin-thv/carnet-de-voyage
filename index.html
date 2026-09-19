@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mon Carnet de Voyage Interactif</title>
     
     <!-- Intégration de Leaflet -->
@@ -20,6 +20,8 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            /* Empêche le zoom par double tap parasite sur mobile */
+            touch-action: manipulation;
         }
 
         /* --- ÉCRAN D'ACCUEIL --- */
@@ -192,27 +194,6 @@
             background-color: #c0392b;
         }
 
-        /* Style des épingles HTML personnalisées (Option B) */
-        .custom-country-pin {
-            background: white;
-            border: 2px solid #2c3e50;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            white-space: nowrap;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-            text-align: center;
-        }
-        .custom-country-pin:hover {
-            background-color: #3498db;
-            color: white;
-            border-color: #2980b9;
-            transform: scale(1.1);
-        }
-
         .mobile-buttons-container {
             position: absolute;
             bottom: -80px;
@@ -334,7 +315,8 @@
             maxZoom: 19,
             worldCopyJump: false,
             maxBounds: limitesMonde,
-            maxBoundsViscosity: 1.0
+            maxBoundsViscosity: 1.0,
+            tapLayer: true // Optimisation tactile Leaflet
         }).setView([20, 0], zoomMinAdapte);
 
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
@@ -419,60 +401,47 @@
         ];
         var islandeLayerGroup = L.layerGroup();
 
-        // --- UTILISATION DE DIVICON (Boutons HTML cliquables au 1er clic) ---
-        var albanieIcon = L.divIcon({
-            className: 'custom-country-pin',
-            html: '🇦🇱 Albanie',
-            iconSize: [95, 36],
-            iconAnchor: [47, 18]
-        });
+        var albanieMarker = L.marker([41.4147, 19.7206]).addTo(map);
+        albanieMarker.bindPopup("<b>Albanie 🇦🇱</b><br>Atterrissage à Tirana (TIA).<br>Cliquez pour ouvrir le carnet.");
 
-        var coreeIcon = L.divIcon({
-            className: 'custom-country-pin',
-            html: '🇰🇷 Corée du Sud',
-            iconSize: [120, 36],
-            iconAnchor: [60, 18]
-        });
+        var coreedusudMarker = L.marker([37.4602, 126.4407]).addTo(map);
+        coreedusudMarker.bindPopup("<b>Corée du Sud 🇰🇷</b><br>Atterrissage à Incheon / Séoul (ICN).<br>Cliquez pour ouvrir le carnet.");
 
-        var tunisieIcon = L.divIcon({
-            className: 'custom-country-pin',
-            html: '🇹🇳 Tunisie',
-            iconSize: [90, 36],
-            iconAnchor: [45, 18]
-        });
+        var tunisieMarker = L.marker([36.8510, 10.2272]).addTo(map);
+        tunisieMarker.bindPopup("<b>Tunisie 🇹🇳</b><br>Séjour basé à Yasmine Hammamet.<br>Cliquez pour ouvrir le carnet.");
 
-        var islandeIcon = L.divIcon({
-            className: 'custom-country-pin',
-            html: '🇮🇸 Islande',
-            iconSize: [95, 36],
-            iconAnchor: [47, 18]
-        });
+        var islandeMarker = L.marker([63.9850, -22.6056]).addTo(map);
+        islandeMarker.bindPopup("<b>Islande 🇮🇸</b><br>Atterrissage à Keflavík (KEF).<br>Cliquez pour ouvrir le carnet.");
 
-        var albanieMarker = L.marker([41.4147, 19.7206], {icon: albanieIcon}).addTo(map);
-        var coreedusudMarker = L.marker([37.4602, 126.4407], {icon: coreeIcon}).addTo(map);
-        var tunisieMarker = L.marker([36.8510, 10.2272], {icon: tunisieIcon}).addTo(map);
-        var islandeMarker = L.marker([63.9850, -22.6056], {icon: islandeIcon}).addTo(map);
+        // Fonction unifiée pour gérer le clic tactile instantané (contourne le délai mobile de 300ms)
+        function attacherEvenementClic(marker, callback) {
+            marker.on('click', function(e) {
+                L.DomEvent.stopPropagation(e);
+                callback(e);
+            });
+            // Pour forcer la réactivité immédiate sur certains écrans tactiles récalcitrants
+            marker.on('touchend', function(e) {
+                L.DomEvent.stopPropagation(e);
+                callback(e);
+            });
+        }
 
-        // Événements directs au clic (plus de problème de focus ou de popup)
-        albanieMarker.on('click', function(e) {
-            L.DomEvent.stopPropagation(e);
+        attacherEvenementClic(albanieMarker, function() {
             ouvrirVoyage([40.7, 19.9], 9, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c');
         });
 
-        coreedusudMarker.on('click', function(e) {
-            L.DomEvent.stopPropagation(e);
+        attacherEvenementClic(coreedusudMarker, function() {
             ouvrirVoyage([36.5, 127.5], 8, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c');
         });
 
-        tunisieMarker.on('click', function(e) {
-            L.DomEvent.stopPropagation(e);
+        attacherEvenementClic(tunisieMarker, function() {
             map.setView([35.2, 9.8], 8);
             cacherTousLesMarqueursPrincipaux();
             remplirSidebarTunisie("Tunisie 🇹🇳 - Carnet de Voyage", tunisieEtapesPoints);
 
             tunisieEtapesPoints.forEach(function(pt) {
                 var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b><br>${pt.desc}`);
-                m.on('click', function() { activerEtape(pt.id); });
+                attacherEvenementClic(m, function() { activerEtape(pt.id); });
                 listeMarqueursActifs[pt.id] = m;
                 tunisieLayerGroup.addLayer(m);
             });
@@ -489,8 +458,7 @@
             activerAffichageUI();
         });
 
-        islandeMarker.on('click', function(e) {
-            L.DomEvent.stopPropagation(e);
+        attacherEvenementClic(islandeMarker, function() {
             ouvrirVoyage([64.8, -18.5], 7, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#3498db');
         });
 
@@ -501,7 +469,7 @@
             
             points.forEach(function(pt) {
                 var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b><br>${pt.desc}`);
-                m.on('click', function() { activerEtape(pt.id); });
+                attacherEvenementClic(m, function() { activerEtape(pt.id); });
                 listeMarqueursActifs[pt.id] = m;
                 layerGroup.addLayer(m);
             });
@@ -656,7 +624,6 @@
 
                                 var idCible = points[i + 1].id;
                                 var badgeEl = document.getElementById('info-leg-' + idCible);
-                                /si/
                                 if (badgeEl) {
                                     badgeEl.innerHTML = `🚗 ~${tempsFormate} (${km} km)`;
                                 }
@@ -691,6 +658,7 @@
             btnMobile.innerHTML = "📖 Ouvrir le carnet de route";
             
             map.setView([20, 0], zoomMinAdapte);
+            map.closePopup();
             map.invalidateSize();
         }
     </script>
