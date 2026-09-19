@@ -131,7 +131,7 @@
             height: 100%;
         }
         
-        /* Bouton pour quitter l'itinéraire */
+        /* Bouton pour quitter l'itinéraire (PC) */
         .btn-quitter {
             background-color: #e74c3c;
             color: white;
@@ -148,7 +148,21 @@
             background-color: #c0392b;
         }
 
-        #quit-btn-container {
+        /* Bouton de fermeture rapide flottant sur mobile */
+        #mobile-quit-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 1003;
+            cursor: pointer;
             display: none;
         }
 
@@ -163,7 +177,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 35vh; /* Hauteur de 35% de l'écran */
+                height: 35vh;
                 background-color: white;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
@@ -177,7 +191,6 @@
                 transform: translateY(0);
             }
 
-            /* Force la fermeture totale sur mobile si la classe .ferme est présente */
             #sidebar.ferme {
                 display: none !important;
             }
@@ -224,6 +237,9 @@
         <!-- Bouton mobile pour ouvrir le carnet de route -->
         <button id="mobile-toggle-btn" onclick="toggleSidebarMobile()">📖 Ouvrir le carnet de route</button>
 
+        <!-- Bouton flottant pour quitter l'itinéraire rapidement sur mobile -->
+        <button id="mobile-quit-btn" onclick="fermerItineraire()">✕ Quitter l'itinéraire</button>
+
         <!-- Conteneur de la carte -->
         <div id="map"></div>
     </div>
@@ -231,19 +247,19 @@
     <!-- Script Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Détection si l'on est sur mobile (largeur d'écran inférieure ou égale à 768px)
+        // Détection si l'on est sur mobile
         var estMobile = window.innerWidth <= 768;
 
-        // Adaptation du zoom minimum : 2 sur mobile pour dézoomer plus, 3 sur PC
+        // Zoom minimum : 2 sur mobile pour dézoomer plus, 3 sur PC
         var zoomMinAdapte = estMobile ? 2 : 3;
 
-        // Limites géographiques adaptées selon l'appareil
+        // Limites géographiques pour bloquer le déplacement vertical/horizontal excessif
         var limitesMonde = L.latLngBounds(
             [estMobile ? -85 : -80, -180],
             [estMobile ? 85 : 85, 180]
         );
 
-        // Initialisation de la carte avec les valeurs dynamiques
+        // Initialisation de la carte
         var map = L.map('map', {
             minZoom: zoomMinAdapte,
             maxZoom: 19,
@@ -393,6 +409,7 @@
             var sidebar = document.getElementById('sidebar');
             sidebar.classList.remove('ferme');
             document.getElementById('mobile-toggle-btn').style.display = 'block';
+            document.getElementById('mobile-quit-btn').style.display = 'block';
             map.closePopup();
         }
 
@@ -563,6 +580,9 @@
             var btnMobile = document.getElementById('mobile-toggle-btn');
             btnMobile.style.display = 'none';
             btnMobile.innerHTML = "📖 Ouvrir le carnet de route";
+
+            // Masquer le bouton de fermeture rapide mobile
+            document.getElementById('mobile-quit-btn').style.display = 'none';
             
             map.setView([20, 0], zoomMinAdapte);
             map.closePopup();
