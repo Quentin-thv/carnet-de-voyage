@@ -231,20 +231,26 @@
     <!-- Script Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Définition des limites géographiques maximales pour bloquer le déplacement vertical/horizontal hors de la carte
+        // Détection si l'on est sur mobile (largeur d'écran inférieure ou égale à 768px)
+        var estMobile = window.innerWidth <= 768;
+
+        // Adaptation du zoom minimum : 2 sur mobile pour dézoomer plus, 3 sur PC
+        var zoomMinAdapte = estMobile ? 2 : 3;
+
+        // Limites géographiques adaptées selon l'appareil
         var limitesMonde = L.latLngBounds(
-            [-80, -180], // Limite Sud et Ouest
-            [85, 180]    // Limite Nord et Est
+            [estMobile ? -85 : -80, -180],
+            [estMobile ? 85 : 85, 180]
         );
 
-        // Initialisation de la carte avec minZoom et les maxBounds configurés
+        // Initialisation de la carte avec les valeurs dynamiques
         var map = L.map('map', {
-            minZoom: 3,
+            minZoom: zoomMinAdapte,
             maxZoom: 19,
             worldCopyJump: false,
             maxBounds: limitesMonde,
-            maxBoundsViscosity: 1.0 // Empêche totalement de glisser hors de la zone définie
-        }).setView([20, 0], 3);
+            maxBoundsViscosity: 1.0
+        }).setView([20, 0], zoomMinAdapte);
 
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 19,
@@ -558,7 +564,7 @@
             btnMobile.style.display = 'none';
             btnMobile.innerHTML = "📖 Ouvrir le carnet de route";
             
-            map.setView([20, 0], 3);
+            map.setView([20, 0], zoomMinAdapte);
             map.closePopup();
             map.invalidateSize();
         }
