@@ -8,7 +8,7 @@
     <!-- Intégration de Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
-    <!-- Styles CSS -->
+    <!-- Styles CSS Unifiés -->
     <style>
         body {
             margin: 0;
@@ -23,7 +23,6 @@
             touch-action: manipulation;
         }
 
-        /* --- ÉCRAN D'ACCUEIL --- */
         #welcome-screen {
             position: fixed;
             top: 0;
@@ -89,15 +88,11 @@
             z-index: 2000;
         }
 
-        .header-title-container {
-            text-align: left;
-        }
-
-        header h1 {
+        .header-title-container h1 {
             margin: 0;
             font-size: 1.3rem;
         }
-        header p.subtitle {
+        .header-title-container p.subtitle {
             margin: 0;
             color: #bdc3c7;
             font-size: 0.8rem;
@@ -109,8 +104,7 @@
             gap: 10px;
         }
 
-        .btn-home-header {
-            background-color: #e67e22;
+        .btn-home-header, #btn-reouvrir-carnet {
             color: white;
             border: none;
             padding: 8px 14px;
@@ -122,27 +116,11 @@
             transition: background 0.2s;
             white-space: nowrap;
         }
-        .btn-home-header:hover {
-            background-color: #d35400;
-        }
+        .btn-home-header { background-color: #e67e22; }
+        .btn-home-header:hover { background-color: #d35400; }
 
-        #btn-reouvrir-carnet {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            display: none;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-        #btn-reouvrir-carnet:hover {
-            background-color: #2980b9;
-        }
+        #btn-reouvrir-carnet { background-color: #3498db; display: none; }
+        #btn-reouvrir-carnet:hover { background-color: #2980b9; }
 
         .main-container {
             display: flex;
@@ -185,6 +163,7 @@
             padding-bottom: 5px;
             font-weight: bold;
         }
+
         .step-card {
             background: #f8f9fa;
             border-left: 4px solid #3498db;
@@ -194,24 +173,29 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .step-card:hover {
-            background: #e9ecef;
+
+        .step-card.is-bis {
+            border-left-color: #9b59b6;
+            background: #fdfefe;
+            margin-left: 15px;
+            display: none;
         }
+
+        .step-card:hover { background: #e9ecef; }
         .step-card.active {
             background: #ebf5fb;
             border-left-color: #e74c3c;
             box-shadow: 0 0 8px rgba(231, 76, 60, 0.3);
             transform: scale(1.02);
         }
-        .step-card h4 {
-            margin: 0 0 5px 0;
-            color: #2980b9;
+        .step-card.is-bis.active {
+            border-left-color: #8e44ad;
+            background: #f4ecf7;
         }
-        .step-card p {
-            margin: 0 0 8px 0;
-            font-size: 0.9rem;
-            color: #555;
-        }
+
+        .step-card h4 { margin: 0 0 5px 0; color: #2980b9; }
+        .step-card.is-bis h4 { color: #8e44ad; }
+        .step-card p { margin: 0 0 8px 0; font-size: 0.9rem; color: #555; }
         
         .badges-container {
             display: flex;
@@ -230,10 +214,7 @@
             font-weight: 600;
         }
 
-        #map {
-            flex: 1;
-            height: 100%;
-        }
+        #map { flex: 1; height: 100%; }
         
         .btn-quitter {
             background-color: #e74c3c;
@@ -247,88 +228,52 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: background 0.2s;
         }
-        .btn-quitter:hover {
-            background-color: #c0392b;
-        }
+        .btn-quitter:hover { background-color: #c0392b; }
 
-        /* --- ÉPINGLE CLASSIQUE + BADGE IMAGE DRAPEAU --- */
         .pin-with-flag-wrapper {
             position: relative;
             width: 25px;
             height: 41px;
         }
-
         .classic-pin-img {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 25px;
-            height: 41px;
+            top: 0; left: 0;
+            width: 25px; height: 41px;
         }
-
         .pin-flag-badge {
             position: absolute;
-            top: -6px;
-            right: -18px;
+            top: -6px; right: -18px;
             background: white;
             border: 1px solid #7f8c8d;
             border-radius: 3px;
             padding: 1px;
-            width: 20px;
-            height: 14px;
+            width: 20px; height: 14px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
+        .pin-flag-badge img { width: 100%; height: 100%; object-fit: cover; }
 
-        .pin-flag-badge img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Styles spécifiques pour mobiles */
         @media screen and (max-width: 768px) {
-            header h1 {
-                font-size: 1rem;
-            }
-            header p.subtitle {
-                display: none;
-            }
-
-            .main-container {
-                flex-direction: column-reverse;
-            }
-
+            header p.subtitle { display: none; }
+            .main-container { flex-direction: column-reverse; }
             #sidebar {
                 position: absolute;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 30vh;
-                background-color: white;
+                bottom: 0; left: 0;
+                width: 100%; height: 30vh;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
                 display: none;
                 z-index: 1600;
             }
-
-            #sidebar.mobile-open {
-                display: block !important;
-            }
-
-            #map {
-                width: 100%;
-                height: 100%;
-            }
+            #sidebar.mobile-open { display: block !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Écran de Bienvenue -->
     <div id="welcome-screen">
         <h1>🌍 Mes Voyages & Itinéraires</h1>
         <p>Découvrez mes road-trips à travers le monde à travers des carnets de route interactifs.</p>
@@ -347,30 +292,20 @@
     </header>
 
     <div class="main-container">
-        <!-- Panneau latéral -->
-        <div id="sidebar">
-            <div id="sidebar-content"></div>
-        </div>
-
+        <div id="sidebar"><div id="sidebar-content"></div></div>
         <div id="map"></div>
     </div>
 
-    <!-- Script Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         var estMobile = window.innerWidth <= 768;
         var zoomMinAdapte = estMobile ? 2 : 3;
 
-        var limitesMonde = L.latLngBounds(
-            [estMobile ? -85 : -80, -180],
-            [estMobile ? 85 : 85, 180]
-        );
-
         var map = L.map('map', {
             minZoom: zoomMinAdapte,
             maxZoom: 19,
             worldCopyJump: false,
-            maxBounds: limitesMonde,
+            maxBounds: L.latLngBounds([estMobile ? -85 : -80, -180], [estMobile ? 85 : 85, 180]),
             maxBoundsViscosity: 1.0,
             tapLayer: true
         }).setView([20, 0], zoomMinAdapte);
@@ -394,83 +329,115 @@
         var iconeRouge = new L.Icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+        });
+
+        var iconeBis = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
         });
 
         var listeMarqueursActifs = [];
+        var routesBisLayers = {};
 
+        // Données des pays
         var albanieEtapesPoints = [
-            {id: 0, coords: [41.3275, 19.8187], type: "all", title: "Étape 1 et 7 : Tirana", desc: "Point de départ et d'arrivée du road-trip.", nuits: 1},
-            {id: 1, coords: [40.7058, 19.9522], type: "all", title: "Étape 2 : Berat", desc: "La ville aux mille fenêtres.", nuits: 1},
-            {id: 2, coords: [40.0758, 20.1389], type: "all", title: "Étape 3 : Gjirokastër", desc: "Ville de pierre ottomane.", nuits: 1},
-            {id: 3, coords: [39.8590, 20.0031], type: "all", title: "Étape 4 : Saranda", desc: "Riviera albanaise.", nuits: 1},
-            {id: 4, coords: [40.1039, 19.7447], type: "all", title: "Étape 5 : Himarë", desc: "Plages sauvages.", nuits: 1},
-            {id: 5, coords: [40.4650, 19.4903], type: "all", title: "Étape 6 : Vlorë", desc: "Carrefour maritime.", nuits: 1},
-            {id: 6, coords: [41.3275, 19.8187], type: "all", title: "Étape 1 et 7 : Tirana", desc: "Fin du road-trip.", nuits: 1}
+            {id: 0, coords: [41.3275, 19.8187], title: "Étape 1 et 7 : Tirana", desc: "Point de départ et d'arrivée du road-trip.", nuits: 1},
+            {id: 1, coords: [40.7058, 19.9522], title: "Étape 2 : Berat", desc: "La ville aux mille fenêtres.", nuits: 1},
+            {id: 2, coords: [40.0758, 20.1389], title: "Étape 3 : Gjirokastër", desc: "Ville de pierre ottomane.", nuits: 1},
+            {id: 3, coords: [39.8590, 20.0031], title: "Étape 4 : Saranda", desc: "Riviera albanaise.", nuits: 1},
+            {id: 4, coords: [40.1039, 19.7447], title: "Étape 5 : Himarë", desc: "Plages sauvages.", nuits: 1},
+            {id: 5, coords: [40.4650, 19.4903], title: "Étape 6 : Vlorë", desc: "Carrefour maritime.", nuits: 1},
+            {id: 6, coords: [41.3275, 19.8187], title: "Étape 1 et 7 : Tirana", desc: "Fin du road-trip.", nuits: 1}
         ];
         var albanieLayerGroup = L.layerGroup();
 
         var coreeEtapesPoints = [
-            {id: 0, coords: [37.5665, 126.9780], type: "all", title: "Étape 1 et 4 : Séoul", desc: "Capitale et palais royaux.", nuits: 6},
-            {id: 1, coords: [35.8242, 127.1480], type: "all", title: "Étape 2 : Jeonju", desc: "Village Hanok traditionnel.", nuits: 2},
-            {id: 2, coords: [35.1796, 129.0756], type: "all", title: "Étape 3 : Busan", desc: "Marché aux poissons et plages.", nuits: 5},
-            {id: 3, coords: [37.5665, 126.9780], type: "all", title: "Étape 1 et 4 : Séoul", desc: "Retour à la capitale.", nuits: 7}
+            {id: 0, coords: [37.5665, 126.9780], title: "Étape 1 et 4 : Séoul", desc: "Capitale et palais royaux.", nuits: 6},
+            {id: 1, coords: [35.8242, 127.1480], title: "Étape 2 : Jeonju", desc: "Village Hanok traditionnel.", nuits: 2},
+            {id: 2, coords: [35.1796, 129.0756], title: "Étape 3 : Busan", desc: "Marché aux poissons et plages.", nuits: 5},
+            {id: 3, coords: [37.5665, 126.9780], title: "Étape 1 et 4 : Séoul", desc: "Retour à la capitale.", nuits: 7}
         ];
         var coreeLayerGroup = L.layerGroup();
 
         var tunisieEtapesPoints = [
             {id: 0, coords: [36.4000, 10.5167], type: "part1", title: "Base : Yasmine Hammamet", desc: "Point de départ de vos excursions locales.", nuits: 7},
             {id: 1, coords: [36.3167, 9.9333], type: "part1", title: "Zriba Olya", desc: "Ancien village berbère accroché à la montagne.", nuits: 0},
-            {id: 2, coords: [36.4000, 9.9167], type: "part1", title: "Temples de l'eau de Zaghouan", desc: "Vestiges romains impressionnants au pied du Djebel Zaghouan.", nuits: 0},
-            {id: 3, coords: [36.4000, 10.6167], type: "part1", title: "Hammamet", desc: "Visite de la médina fortifiée et des remparts.", nuits: 0},
+            {id: 2, coords: [36.4000, 9.9167], type: "part1", title: "Temples de l'eau de Zaghouan", desc: "Vestiges romains au pied du Djebel Zaghouan.", nuits: 0},
+            {id: 3, coords: [36.4000, 10.6167], type: "part1", title: "Hammamet", desc: "Visite de la médina fortifiée.", nuits: 0},
             {id: 4, coords: [35.8256, 10.6369], type: "part1", title: "Sousse", desc: "Grande médina classée à l'UNESCO.", nuits: 0},
             {id: 5, coords: [35.7779, 10.6354], type: "part1", title: "Monastir", desc: "Découverte du Ribat dominant la Méditerranée.", nuits: 0},
             
             {id: 6, coords: [36.4000, 10.5167], type: "part2", title: "Départ : Yasmine Hammamet", desc: "Départ matinal vers le Grand Sud.", nuits: 0},
-            {id: 7, coords: [35.2990, 10.7078], type: "part2", title: "Colisée d'El Jem", desc: "Immense amphithéâtre romain sur la route.", nuits: 0},
-            {id: 8, coords: [33.5439, 8.9733], type: "part2", title: "Matmata", desc: "Maisons troglodytes souterraines creusées dans la roche.", nuits: 0},
-            {id: 9, coords: [33.4300, 9.0800], type: "part2", title: "Camp Dunes Insolites (Douz)", desc: "Nuit magique au cœur des dunes de sable fin.", nuits: 1},
-            {id: 10, coords: [33.9297, 8.4796], type: "part2", title: "Route du Lac Salé (Chott el-Jérid)", desc: "Traversée de l'immense étendue de sel scintillant.", nuits: 0},
-            {id: 11, coords: [34.3190, 7.9351], type: "part2", title: "Oasis de Chebika", desc: "Oasis de montagne féerique et ses cascades.", nuits: 0},
+            {id: 7, coords: [35.2990, 10.7078], type: "part2", title: "Colisée d'El Jem", desc: "Immense amphithéâtre romain.", nuits: 0},
+            {id: 8, coords: [33.5439, 8.9733], type: "part2", title: "Matmata", desc: "Maisons troglodytes souterraines.", nuits: 0},
+            {id: 9, coords: [33.4300, 9.0800], type: "part2", title: "Camp Dunes Insolites (Douz)", desc: "Nuit magique au cœur des dunes.", nuits: 1},
+            {id: 10, coords: [33.9297, 8.4796], type: "part2", title: "Route du Lac Salé (Chott el-Jérid)", desc: "Traversée de l'immense étendue de sel.", nuits: 0},
+            {id: 11, coords: [34.3190, 7.9351], type: "part2", title: "Oasis de Chebika", desc: "Oasis de montagne féerique et cascades.", nuits: 0},
             {id: 12, coords: [36.4000, 10.5167], type: "part2", title: "Retour : Yasmine Hammamet", desc: "Fin de l'expédition et retour à la base.", nuits: 0},
 
             {id: 13, coords: [36.4000, 10.5167], type: "part3", title: "Départ : Yasmine Hammamet", desc: "Route vers la capitale et le nord.", nuits: 0},
             {id: 14, coords: [36.8708, 10.3417], type: "part3", title: "Sidi Bou Saïd", desc: "Village pittoresque aux maisons bleues et blanches.", nuits: 0},
-            {id: 15, coords: [36.8528, 10.3236], type: "part3", title: "Carthage", desc: "Site archéologique punique et romain chargé d'histoire.", nuits: 0},
-            {id: 16, coords: [36.8065, 10.1815], type: "part3", title: "Tunis", desc: "Visite de la grande médina de Tunis et de ses souks.", nuits: 0},
+            {id: 15, coords: [36.8528, 10.3236], type: "part3", title: "Carthage", desc: "Site archéologique punique et romain.", nuits: 0},
+            {id: 16, coords: [36.8065, 10.1815], type: "part3", title: "Tunis", desc: "Visite de la grande médina de Tunis.", nuits: 0},
             {id: 17, coords: [36.4000, 10.5167], type: "part3", title: "Retour : Yasmine Hammamet", desc: "Fin de l'excursion et retour à la base.", nuits: 0}
         ];
         var tunisieLayerGroup = L.layerGroup();
 
         var islandeEtapesPoints = [
-            {id: 0, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Capitale vibrante, point de départ et d'arrivée.", nuits: 2},
-            {id: 1, coords: [64.8914, -23.7134], type: "all", title: "Étape 2 : Ólafsvík", desc: "Péninsule de Snæfellsnes.", nuits: 2},
-            {id: 2, coords: [65.6835, -18.1056], type: "all", title: "Étape 3 : Akureyri", desc: "Capitale du Nord.", nuits: 2},
-            {id: 3, coords: [65.2633, -14.4028], type: "all", title: "Étape 4 : Egilsstaðir", desc: "Porte des Fjords de l'Est.", nuits: 1},
-            {id: 4, coords: [64.2530, -15.9348], type: "all", title: "Étape 5 : Hölmur", desc: "Paysages glaciaires.", nuits: 1},
-            {id: 5, coords: [63.4186, -19.0060], type: "all", title: "Étape 6 : Vík", desc: "Plages de sable noir.", nuits: 2},
-            {id: 6, coords: [63.9328, -21.0004], type: "all", title: "Étape 7 : Selfoss", desc: "Terres agricoles et Cercle d'Or.", nuits: 2},
-            {id: 7, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Fin du voyage.", nuits: 2}
+            {id: 0, coords: [64.1466, -21.9426], title: "Étape 1 et 8 : Reykjavík", desc: "Capitale vibrante, point de départ et d'arrivée.", nuits: 2},
+            {id: 1, coords: [64.8914, -23.7134], title: "Étape 2 : Ólafsvík", desc: "Péninsule de Snæfellsnes.", nuits: 2},
+            {id: 2, coords: [65.6835, -18.1056], title: "Étape 3 : Akureyri", desc: "Capitale du Nord.", nuits: 2},
+            {id: 3, coords: [65.2633, -14.4028], title: "Étape 4 : Egilsstaðir", desc: "Porte des Fjords de l'Est.", nuits: 1},
+            {id: 4, coords: [64.2530, -15.9348], title: "Étape 5 : Hölmur", desc: "Paysages glaciaires.", nuits: 1},
+            {id: 5, coords: [63.4186, -19.0060], title: "Étape 6 : Vík", desc: "Plages de sable noir.", nuits: 2},
+            {id: 6, coords: [63.9328, -21.0004], title: "Étape 7 : Selfoss", desc: "Terres agricoles et Cercle d'Or.", nuits: 2},
+            {id: 7, coords: [64.1466, -21.9426], title: "Étape 1 et 8 : Reykjavík", desc: "Fin du voyage.", nuits: 2}
         ];
         var islandeLayerGroup = L.layerGroup();
 
         var cambodgeEtapesPoints = [
-            {id: 0, coords: [11.5564, 104.9282], type: "all", title: "Étape 1, 4 & 7 : Phnom Penh", desc: "Capitale vibrante et point de départ du périple.", nuits: 2},
-            {id: 1, coords: [13.0957, 103.2022], type: "all", title: "Étape 2 : Battambang", desc: "Campagne pittoresque et charme colonial.", nuits: 1},
-            {id: 2, coords: [13.3671, 103.8448], type: "all", title: "Étape 3 : Siem Reap", desc: "Porte d'entrée des temples légendaires d'Angkor.", nuits: 4},
-            {id: 3, coords: [11.5564, 104.9282], type: "all", title: "Étape 4 : Phnom Penh", desc: "Étape de transition dans la capitale.", nuits: 5},
-            {id: 4, coords: [12.9467, 107.1895], type: "all", title: "Étape 5 : Sen Monorom", desc: "Hauts plateaux du Mondulkiri et collines verdoyantes.", nuits: 1},
-            {id: 5, coords: [10.6104, 104.1755], type: "all", title: "Étape 6 : Kampot", desc: "Ambiance détendue au bord de l'eau et plantations de poivre.", nuits: 3},
-            {id: 6, coords: [10.7300, 103.2700], type: "all", title: "Étape 7 : Koh Rong", desc: "Île paradisiaque aux plages de sable blanc.", nuits: 5},
-            {id: 7, coords: [11.5564, 104.9282], type: "all", title: "Étape 8 : Phnom Penh", desc: "Retour final à la capitale pour la fin du voyage.", nuits: 1}
+            {id: 0, coords: [11.5564, 104.9282], title: "Étape 1, 4 & 7 : Phnom Penh", desc: "Capitale vibrante et point de départ.", nuits: 2},
+            {id: 1, coords: [13.0957, 103.2022], title: "Étape 2 : Battambang", desc: "Campagne pittoresque.", nuits: 1},
+            {id: 2, coords: [13.3671, 103.8448], title: "Étape 3 : Siem Reap", desc: "Temples d'Angkor.", nuits: 4},
+            {id: 3, coords: [11.5564, 104.9282], title: "Étape 4 : Phnom Penh", desc: "Étape de transition.", nuits: 5},
+            {id: 4, coords: [12.9467, 107.1895], title: "Étape 5 : Sen Monorom", desc: "Plateaux du Mondulkiri.", nuits: 1},
+            {id: 5, coords: [10.6104, 104.1755], title: "Étape 6 : Kampot", desc: "Plantations de poivre.", nuits: 3},
+            {id: 6, coords: [10.7300, 103.2700], title: "Étape 7 : Koh Rong", desc: "Île paradisiaque.", nuits: 5},
+            {id: 7, coords: [11.5564, 104.9282], title: "Étape 8 : Phnom Penh", desc: "Retour final.", nuits: 1}
         ];
         var cambodgeLayerGroup = L.layerGroup();
 
-        // Fonction pour créer l'épingle avec une image de drapeau officielle (code pays en minuscules)
-        function creerEpineClassiqueAvecDrapeauImage(codePays) {
+        var canadaEtapesPoints = [
+            {id: 0, coords: [45.5017, -73.5673], title: "Étape 1 et 9 : Montréal", desc: "Métropole culturelle.", nuits: 2},
+            {id: 1, coords: [46.2615, -74.5098], title: "Étape 2 : Parc Mont Tremblant", desc: "Laurentides et nature.", nuits: 2},
+            {id: 2, coords: [46.8000, -72.9658], title: "Étape 3 : Mauricie", desc: "Forêts boréales.", nuits: 1},
+            {id: 3, coords: [48.5500, -71.6333], title: "Étape 4 : Lac St-Jean", desc: "Mer intime.", nuits: 2},
+            {id: 4, coords: [48.3328, -70.8659], title: "Étape 5 : Fjord du Saguenay", desc: "Falaises vertigineuses.", nuits: 2},
+            {id: 5, coords: [48.1460, -69.7128], title: "Étape 6 : Tadoussac", desc: "Observation des baleines.", nuits: 1},
+            {id: 6, coords: [47.4424, -70.5041], title: "Étape 7 : Charlevoix", desc: "Région côtière.", nuits: 1},
+            {id: 7, coords: [46.8139, -71.2082], title: "Étape 8 : Québec", desc: "Ville historique fortifiée.", nuits: 1},
+            {id: 8, coords: [45.5017, -73.5673], title: "Étape 1 et 9 : Montréal", desc: "Fin du road-trip.", nuits: 3}
+        ];
+        var canadaLayerGroup = L.layerGroup();
+
+        var irlandeEtapesPoints = [
+            {id: 0, coords: [53.3498, -6.2603], title: "Étape 1 et 8 : Dublin", desc: "Capitale, point de départ et d'arrivée.", nuits: 2},
+            {id: 10, coords: [53.5526, -6.7916], title: "Étape Bis : Trim", desc: "Château médiéval.", nuits: 0, estBis: true, parentId: 0},
+            {id: 11, coords: [53.6947, -6.4746], title: "Étape Bis : Newgrange", desc: "Site mégalithique.", nuits: 0, estBis: true, parentId: 0},
+            {id: 12, coords: [53.7667, -6.3833], title: "Étape Bis : Monasterboice", desc: "Croix celtiques.", nuits: 0, estBis: true, parentId: 0},
+            {id: 1, coords: [53.4241, -7.9436], title: "Étape 2 : Athlone", desc: "Rives du Shannon.", nuits: 1},
+            {id: 2, coords: [53.8018, -9.5255], title: "Étape 3 : Westport House", desc: "Manoir spectaculaire.", nuits: 1},
+            {id: 13, coords: [53.9574, -9.9575], title: "Étape 3 bis : Achill Island", desc: "Falaises côtières.", nuits: 0, estBis: true, parentId: 2},
+            {id: 3, coords: [53.4848, -10.0197], title: "Étape 4 : Clifden", desc: "Connemara.", nuits: 1},
+            {id: 4, coords: [53.2707, -9.0568], title: "Étape 5 : Galway", desc: "Ville côtière.", nuits: 2},
+            {id: 5, coords: [52.5163, -7.8893], title: "Étape 6 : Cashel", desc: "Rocher de Cashel.", nuits: 1},
+            {id: 6, coords: [52.6542, -7.2448], title: "Étape 7 : Kilkenny", desc: "Patrimoine médiéval.", nuits: 1}
+        ];
+        var irlandeLayerGroup = L.layerGroup();
+
+        function creerEpineDrapeau(codePays) {
             return L.divIcon({
                 className: 'custom-pin-wrapper',
                 html: `
@@ -479,46 +446,36 @@
                         <div class="pin-flag-badge"><img src="https://flagcdn.com/w40/${codePays}.png" alt="${codePays}"></div>
                     </div>
                 `,
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -38]
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -38]
             });
         }
 
-        var albanieMarker = L.marker([41.4147, 19.7206], {icon: creerEpineClassiqueAvecDrapeauImage('al')}).addTo(map);
-        albanieMarker.bindPopup("<b>Albanie 🇦🇱</b><br>Cliquez pour ouvrir le carnet.");
-
-        var coreedusudMarker = L.marker([37.4602, 126.4407], {icon: creerEpineClassiqueAvecDrapeauImage('kr')}).addTo(map);
-        coreedusudMarker.bindPopup("<b>Corée du Sud 🇰🇷</b><br>Cliquez pour ouvrir le carnet.");
-
-        var tunisieMarker = L.marker([36.8510, 10.2272], {icon: creerEpineClassiqueAvecDrapeauImage('tn')}).addTo(map);
-        tunisieMarker.bindPopup("<b>Tunisie 🇹🇳</b><br>Cliquez pour ouvrir le carnet.");
-
-        var islandeMarker = L.marker([63.9850, -22.6056], {icon: creerEpineClassiqueAvecDrapeauImage('is')}).addTo(map);
-        islandeMarker.bindPopup("<b>Islande 🇮🇸</b><br>Cliquez pour ouvrir le carnet.");
-
-        var cambodgeMarker = L.marker([12.5657, 104.9910], {icon: creerEpineClassiqueAvecDrapeauImage('kh')}).addTo(map);
-        cambodgeMarker.bindPopup("<b>Cambodge 🇰🇭</b><br>Cliquez pour ouvrir le carnet.");
+        var albanieMarker = L.marker([41.4147, 19.7206], {icon: creerEpineDrapeau('al')}).addTo(map).bindPopup("<b>Albanie 🇦🇱</b>");
+        var coreeMarker = L.marker([37.4602, 126.4407], {icon: creerEpineDrapeau('kr')}).addTo(map).bindPopup("<b>Corée du Sud 🇰🇷</b>");
+        var tunisieMarker = L.marker([36.8510, 10.2272], {icon: creerEpineDrapeau('tn')}).addTo(map).bindPopup("<b>Tunisie 🇹🇳</b>");
+        var islandeMarker = L.marker([63.9850, -22.6056], {icon: creerEpineDrapeau('is')}).addTo(map).bindPopup("<b>Islande 🇮🇸</b>");
+        var cambodgeMarker = L.marker([11.5466, 104.8442], {icon: creerEpineDrapeau('kh')}).addTo(map).bindPopup("<b>Cambodge 🇰🇭</b>");
+        var canadaMarker = L.marker([45.4657, -73.7455], {
+            icon: L.divIcon({
+                className: 'custom-pin-wrapper',
+                html: `<div class="pin-with-flag-wrapper"><img class="classic-pin-img" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png" /><div class="pin-flag-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Flag_of_Quebec.svg" /></div></div>`,
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -38]
+            })
+        }).addTo(map).bindPopup("<b>Québec ⚜️</b>");
+        var irlandeMarker = L.marker([53.4213, -6.2701], {icon: creerEpineDrapeau('ie')}).addTo(map).bindPopup("<b>Irlande 🇮🇪</b>");
 
         function attacherEvenementClic(marker, callback) {
-            marker.on('click', function(e) {
-                L.DomEvent.stopPropagation(e);
-                callback(e);
-            });
-            marker.on('touchend', function(e) {
-                L.DomEvent.stopPropagation(e);
-                callback(e);
-            });
+            marker.on('click', function(e) { L.DomEvent.stopPropagation(e); callback(e); });
+            marker.on('touchend', function(e) { L.DomEvent.stopPropagation(e); callback(e); });
         }
 
-        attacherEvenementClic(albanieMarker, function() {
-            ouvrirVoyage([40.7, 19.9], 8, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c');
-        });
-
-        attacherEvenementClic(coreedusudMarker, function() {
-            ouvrirVoyage([36.5, 127.5], 7, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c');
-        });
-
+        attacherEvenementClic(albanieMarker, function() { ouvrirVoyage([40.7, 19.9], 8, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c'); });
+        attacherEvenementClic(coreeMarker, function() { ouvrirVoyage([36.5, 127.5], 7, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c'); });
+        attacherEvenementClic(islandeMarker, function() { ouvrirVoyage([64.8, -18.5], 6, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#e74c3c'); });
+        attacherEvenementClic(cambodgeMarker, function() { ouvrirVoyage([12.2, 104.5], 7, "Cambodge 🇰🇭 - Carnet de Voyage", cambodgeEtapesPoints, cambodgeLayerGroup, '#e74c3c'); });
+        attacherEvenementClic(canadaMarker, function() { ouvrirVoyage([47.5, -71.5], 6, "Québec ⚜️ - Road-Trip", canadaEtapesPoints, canadaLayerGroup, '#e74c3c'); });
+        
+        // Gestion de la Tunisie
         attacherEvenementClic(tunisieMarker, function() {
             map.setView([35.2, 9.8], 7);
             cacherTousLesMarqueursPrincipaux();
@@ -531,20 +488,35 @@
                 tunisieLayerGroup.addLayer(m);
             });
 
-            chargerRouteOsm(tunisieEtapesPoints.filter(p => p.type === 'part1'), tunisieLayerGroup, '#3498db');
-            chargerRouteOsm(tunisieEtapesPoints.filter(p => p.type === 'part2'), tunisieLayerGroup, '#e67e22');
-            chargerRouteOsm(tunisieEtapesPoints.filter(p => p.type === 'part3'), tunisieLayerGroup, '#2ecc71');
+            chargerRouteOsmComplet(tunisieEtapesPoints.filter(p => p.type === 'part1'), tunisieLayerGroup, '#3498db');
+            chargerRouteOsmComplet(tunisieEtapesPoints.filter(p => p.type === 'part2'), tunisieLayerGroup, '#e67e22');
+            chargerRouteOsmComplet(tunisieEtapesPoints.filter(p => p.type === 'part3'), tunisieLayerGroup, '#2ecc71');
 
             tunisieLayerGroup.addTo(map);
             afficherSidebar();
         });
 
-        attacherEvenementClic(islandeMarker, function() {
-            ouvrirVoyage([64.8, -18.5], 6, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#e74c3c');
-        });
+        // Gestion de l'Irlande
+        attacherEvenementClic(irlandeMarker, function() {
+            map.setView([53.6, -8.5], 8);
+            cacherTousLesMarqueursPrincipaux();
+            remplirSidebarIrlande("Irlande 🇮🇪 - Road-Trip", irlandeEtapesPoints);
 
-        attacherEvenementClic(cambodgeMarker, function() {
-            ouvrirVoyage([12.2, 104.5], 7, "Cambodge 🇰🇭 - Carnet de Voyage", cambodgeEtapesPoints, cambodgeLayerGroup, '#e74c3c');
+            irlandeEtapesPoints.forEach(function(pt) {
+                if (!pt.estBis) {
+                    var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b>`);
+                    attacherEvenementClic(m, function() { cliquerEtapeIrlande(pt.id); });
+                    listeMarqueursActifs[pt.id] = m;
+                    irlandeLayerGroup.addLayer(m);
+                }
+            });
+
+            var pointsPrincipauxIrlande = irlandeEtapesPoints.filter(p => !p.estBis);
+            var pointsRouteBoucle = pointsPrincipauxIrlande.concat([pointsPrincipauxIrlande[0]]);
+            chargerRouteOsmComplet(pointsRouteBoucle, irlandeLayerGroup, '#e74c3c');
+
+            irlandeLayerGroup.addTo(map);
+            afficherSidebar();
         });
 
         function ouvrirVoyage(coordsCentre, zoom, titre, points, layerGroup, couleur) {
@@ -558,7 +530,7 @@
                 listeMarqueursActifs[pt.id] = m;
                 layerGroup.addLayer(m);
             });
-            chargerRouteOsm(points, layerGroup, couleur);
+            chargerRouteOsmComplet(points, layerGroup, couleur);
             layerGroup.addTo(map);
             afficherSidebar();
         }
@@ -580,30 +552,31 @@
 
         function cacherTousLesMarqueursPrincipaux() {
             map.removeLayer(albanieMarker);
-            map.removeLayer(coreedusudMarker);
+            map.removeLayer(coreeMarker);
             map.removeLayer(tunisieMarker);
             map.removeLayer(islandeMarker);
             map.removeLayer(cambodgeMarker);
+            map.removeLayer(canadaMarker);
+            map.removeLayer(irlandeMarker);
+            
             map.removeLayer(albanieLayerGroup);
             map.removeLayer(coreeLayerGroup);
             map.removeLayer(tunisieLayerGroup);
             map.removeLayer(islandeLayerGroup);
             map.removeLayer(cambodgeLayerGroup);
+            map.removeLayer(canadaLayerGroup);
+            map.removeLayer(irlandeLayerGroup);
+            
             listeMarqueursActifs = [];
+            routesBisLayers = {};
         }
 
         function remplirSidebarSimple(titreVoyage, points) {
-            var html = `
-                <div class="sidebar-header">
-                    <h2>${titreVoyage}</h2>
-                    <button class="btn-quitter" onclick="fermerCarnetSeulement()">✕ Fermer</button>
-                </div>
-            `;
+            var html = `<div class="sidebar-header"><h2>${titreVoyage}</h2><button class="btn-quitter" onclick="fermerCarnetSeulement()">✕ Fermer</button></div>`;
             points.forEach(function(pt, index) {
                 var badgeNuitsHtml = (pt.nuits && pt.nuits > 0) ? `<div class="route-info-badge" style="background-color: #fef5e7; color: #d35400;">🌙 ${pt.nuits} nuit${pt.nuits > 1 ? 's' : ''}</div>` : '';
-                
                 html += `
-                    <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.id})">
+                    <div class="step-card" id="step-card-${pt.id}" onclick="activerEtape(${pt.id})">
                         <h4>${pt.title}</h4>
                         <p>${pt.desc}</p>
                         <div class="badges-container">
@@ -616,13 +589,29 @@
             document.getElementById('sidebar-content').innerHTML = html;
         }
 
+        function remplirSidebarIrlande(titreVoyage, points) {
+            var html = `<div class="sidebar-header"><h2>${titreVoyage}</h2><button class="btn-quitter" onclick="fermerCarnetSeulement()">✕ Fermer</button></div>`;
+            points.forEach(function(pt, index) {
+                var badgeNuitsHtml = (pt.nuits && pt.nuits > 0) ? `<div class="route-info-badge" style="background-color: #fef5e7; color: #d35400;">🌙 ${pt.nuits} nuit${pt.nuits > 1 ? 's' : ''}</div>` : '';
+                var classeBis = pt.estBis ? 'is-bis' : '';
+                var attributParent = pt.estBis ? `data-parent-id="${pt.parentId}"` : '';
+                
+                html += `
+                    <div class="step-card ${classeBis}" ${attributParent} id="step-card-${pt.id}" onclick="cliquerEtapeIrlande(${pt.id})">
+                        <h4>${pt.title}</h4>
+                        <p>${pt.desc}</p>
+                        <div class="badges-container">
+                            ${badgeNuitsHtml}
+                            ${!pt.estBis && index > 0 ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Infos route...</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('sidebar-content').innerHTML = html;
+        }
+
         function remplirSidebarTunisie(titreVoyage, points) {
-            var html = `
-                <div class="sidebar-header">
-                    <h2>${titreVoyage}</h2>
-                    <button class="btn-quitter" onclick="fermerCarnetSeulement()">✕ Fermer</button>
-                </div>
-            `;
+            var html = `<div class="sidebar-header"><h2>${titreVoyage}</h2><button class="btn-quitter" onclick="fermerCarnetSeulement()">✕ Fermer</button></div>`;
             
             html += `<div class="section-title" style="color: #3498db;">📍 1. Excursions locales</div>`;
             points.filter(p => p.type === 'part1').forEach(function(pt, index) { html += creerCarteHtml(pt, index > 0); });
@@ -638,9 +627,8 @@
 
         function creerCarteHtml(pt, avecBadgeRoute) {
             var badgeNuitsHtml = (pt.nuits && pt.nuits > 0) ? `<div class="route-info-badge" style="background-color: #fef5e7; color: #d35400;">🌙 ${pt.nuits} nuit${pt.nuits > 1 ? 's' : ''}</div>` : '';
-
             return `
-                <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.id})">
+                <div class="step-card" id="step-card-${pt.id}" onclick="activerEtape(${pt.id})">
                     <h4>${pt.title}</h4>
                     <p>${pt.desc}</p>
                     <div class="badges-container">
@@ -651,25 +639,66 @@
             `;
         }
 
-        function cliquerEtapeSidebar(id) {
-            activerEtape(id);
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('mobile-open');
+        function cliquerEtapeIrlande(id) {
+            var etapesBisLiees = irlandeEtapesPoints.filter(p => p.parentId === id);
+
+            if (etapesBisLiees.length > 0) {
+                var cartesBis = document.querySelectorAll(`.step-card.is-bis[data-parent-id="${id}"]`);
+                if (cartesBis.length > 0) {
+                    var estActuellementOuvert = cartesBis[0].style.display === 'block';
+
+                    cartesBis.forEach(function(carte) { carte.style.display = estActuellementOuvert ? 'none' : 'block'; });
+
+                    etapesBisLiees.forEach(function(ptBis) {
+                        if (estActuellementOuvert) {
+                            if (listeMarqueursActifs[ptBis.id]) irlandeLayerGroup.removeLayer(listeMarqueursActifs[ptBis.id]);
+                        } else {
+                            var m = L.marker(ptBis.coords, {icon: iconeBis}).bindPopup(`<b>${ptBis.title}</b>`);
+                            attacherEvenementClic(m, function() { cliquerEtapeIrlande(ptBis.id); });
+                            listeMarqueursActifs[ptBis.id] = m;
+                            irlandeLayerGroup.addLayer(m);
+                        }
+                    });
+
+                    if (estActuellementOuvert && routesBisLayers[id]) {
+                        irlandeLayerGroup.removeLayer(routesBisLayers[id]);
+                        routesBisLayers[id] = null;
+                    } else if (!estActuellementOuvert && !routesBisLayers[id]) {
+                        var parentPoint = irlandeEtapesPoints.find(p => p.id === id);
+                        var pointsRoute = [parentPoint].concat(etapesBisLiees).concat([parentPoint]);
+                        var coordsString = pointsRoute.map(function(p) { return p.coords[1] + ',' + p.coords[0]; }).join(';');
+                        
+                        fetch('https://router.project-osrm.org/route/v1/driving/' + coordsString + '?overview=full&geometries=geojson')
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.routes && data.routes.length > 0) {
+                                    var latLngs = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                                    var routeBisLayer = L.polyline(latLngs, { color: '#9b59b6', weight: 5, opacity: 0.85 });
+                                    irlandeLayerGroup.addLayer(routeBisLayer);
+                                    routesBisLayers[id] = routeBisLayer;
+                                }
+                            });
+                    }
+                }
             }
+
+            activerEtape(id);
+            if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
         }
 
+        // Zoom réduit (niveau 8) lors du clic sur une étape
         function activerEtape(id) {
-            listeMarqueursActifs.forEach(function(m) {
-                if (m) m.setIcon(iconeNormale);
+            listeMarqueursActifs.forEach(function(m, idx) {
+                if (m) {
+                    var ptRef = irlandeEtapesPoints.find(p => p.id === idx);
+                    m.setIcon(ptRef && ptRef.estBis ? iconeBis : iconeNormale);
+                }
             });
-
             if (listeMarqueursActifs[id]) {
                 listeMarqueursActifs[id].setIcon(iconeRouge);
+                map.setView(listeMarqueursActifs[id].getLatLng(), 8); 
             }
-
-            var toutesLesCartes = document.querySelectorAll('.step-card');
-            toutesLesCartes.forEach(function(c) { c.classList.remove('active'); });
-
+            document.querySelectorAll('.step-card').forEach(function(c) { c.classList.remove('active'); });
             var carteCible = document.getElementById('step-card-' + id);
             if (carteCible) {
                 carteCible.classList.add('active');
@@ -677,23 +706,17 @@
             }
         }
 
-        function chargerRouteOsm(points, layerGroup, couleurRoute) {
+        function chargerRouteOsmComplet(points, layerGroup, couleurRoute) {
+            if (!points || points.length < 2) return;
             var coordsString = points.map(function(p) { return p.coords[1] + ',' + p.coords[0]; }).join(';');
-            var url = 'https://router.project-osrm.org/route/v1/driving/' + coordsString + '?overview=full&geometries=geojson';
-
-            fetch(url)
+            fetch('https://router.project-osrm.org/route/v1/driving/' + coordsString + '?overview=full&geometries=geojson')
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.routes && data.routes.length > 0) {
                         var route = data.routes[0];
-                        var routeCoords = route.geometry.coordinates;
-                        var latLngs = routeCoords.map(function(c) { return [c[1], c[0]]; });
-
-                        var routeLine = L.polyline(latLngs, {
-                            color: couleurRoute || '#3498db',
-                            weight: 5,
-                            opacity: 0.85
-                        });
+                        var latLngs = route.geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
+                        
+                        var routeLine = L.polyline(latLngs, { color: couleurRoute || '#3498db', weight: 5, opacity: 0.85 });
                         layerGroup.addLayer(routeLine);
 
                         if (route.legs && route.legs.length === points.length - 1) {
@@ -702,23 +725,16 @@
                                 var km = (leg.distance / 1000).toFixed(1);
                                 var heures = Math.floor(leg.duration / 3600);
                                 var minutes = Math.round((leg.duration % 3600) / 60);
-                                
-                                var tempsFormate = "";
-                                if (heures > 0) { tempsFormate += heures + "h "; }
-                                tempsFormate += minutes + "min";
+                                var tempsTexte = heures > 0 ? `${heures}h${minutes > 9 ? minutes : '0' + minutes}` : `${minutes} min`;
 
-                                var idCible = points[i + 1].id;
-                                var badgeEl = document.getElementById('info-leg-' + idCible);
-                                if (badgeEl) {
-                                    badgeEl.innerHTML = `🚗 ~${tempsFormate} (${km} km)`;
-                                }
+                                var cibleId = points[i + 1].id;
+                                var badgeEl = document.getElementById('info-leg-' + cibleId);
+                                if (badgeEl) badgeEl.innerHTML = `🚗 ${km} km (${tempsTexte})`;
                             }
                         }
                     }
                 })
-                .catch(function(error) {
-                    console.log("Erreur routage :", error);
-                });
+                .catch(function(error) { console.log("Erreur routage :", error); });
         }
 
         function fermerCarnetSeulement() {
@@ -734,17 +750,20 @@
             tunisieLayerGroup.clearLayers();
             islandeLayerGroup.clearLayers();
             cambodgeLayerGroup.clearLayers();
+            canadaLayerGroup.clearLayers();
+            irlandeLayerGroup.clearLayers();
             
             albanieMarker.addTo(map);
-            coreedusudMarker.addTo(map);
+            coreeMarker.addTo(map);
             tunisieMarker.addTo(map);
             islandeMarker.addTo(map);
             cambodgeMarker.addTo(map);
+            canadaMarker.addTo(map);
+            irlandeMarker.addTo(map);
             
             var sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'none';
             sidebar.classList.remove('mobile-open');
-            
             document.getElementById('btn-reouvrir-carnet').style.display = 'none';
             
             map.setView([20, 0], zoomMinAdapte);
