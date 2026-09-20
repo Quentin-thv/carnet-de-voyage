@@ -208,13 +208,19 @@
             color: #2980b9;
         }
         .step-card p {
-            margin: 0;
+            margin: 0 0 8px 0;
             font-size: 0.9rem;
             color: #555;
         }
         
-        .route-info-badge {
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
             margin-top: 8px;
+        }
+
+        .route-info-badge {
             display: inline-block;
             background-color: #eef2f7;
             color: #2c3e50;
@@ -397,59 +403,71 @@
         var listeMarqueursActifs = [];
 
         var albanieEtapesPoints = [
-            {id: 0, coords: [41.3275, 19.8187], type: "all", title: "Étape 1 et 7 : Tirana", desc: "Point de départ et d'arrivée du road-trip."},
-            {id: 1, coords: [40.7058, 19.9522], type: "all", title: "Étape 2 : Berat", desc: "La ville aux mille fenêtres."},
-            {id: 2, coords: [40.0758, 20.1389], type: "all", title: "Étape 3 : Gjirokastër", desc: "Ville de pierre ottomane."},
-            {id: 3, coords: [39.8590, 20.0031], type: "all", title: "Étape 4 : Saranda", desc: "Riviera albanaise."},
-            {id: 4, coords: [40.1039, 19.7447], type: "all", title: "Étape 5 : Himarë", desc: "Plages sauvages."},
-            {id: 5, coords: [40.4650, 19.4903], type: "all", title: "Étape 6 : Vlorë", desc: "Carrefour maritime."},
-            {id: 6, coords: [41.3275, 19.8187], type: "all", title: "Étape 1 et 7 : Tirana", desc: "Fin du road-trip."}
+            {id: 0, coords: [41.3275, 19.8187], type: "all", title: "Étape 1 et 7 : Tirana", desc: "Point de départ et d'arrivée du road-trip.", nuits: 1},
+            {id: 1, coords: [40.7058, 19.9522], type: "all", title: "Étape 2 : Berat", desc: "La ville aux mille fenêtres.", nuits: 1},
+            {id: 2, coords: [40.0758, 20.1389], type: "all", title: "Étape 3 : Gjirokastër", desc: "Ville de pierre ottomane.", nuits: 1},
+            {id: 3, coords: [39.8590, 20.0031], type: "all", title: "Étape 4 : Saranda", desc: "Riviera albanaise.", nuits: 1},
+            {id: 4, coords: [40.1039, 19.7447], type: "all", title: "Étape 5 : Himarë", desc: "Plages sauvages.", nuits: 1},
+            {id: 5, coords: [40.4650, 19.4903], type: "all", title: "Étape 6 : Vlorë", desc: "Carrefour maritime.", nuits: 1},
+            {id: 6, coords: [41.3275, 19.8187], type: "all", title: "Étape 1 et 7 : Tirana", desc: "Fin du road-trip.", nuits: 1}
         ];
         var albanieLayerGroup = L.layerGroup();
 
         var coreeEtapesPoints = [
-            {id: 0, coords: [37.5665, 126.9780], type: "all", title: "Étape 1 et 4 : Séoul", desc: "Capitale et palais royaux."},
-            {id: 1, coords: [35.8242, 127.1480], type: "all", title: "Étape 2 : Jeonju", desc: "Village Hanok traditionnel."},
-            {id: 2, coords: [35.1796, 129.0756], type: "all", title: "Étape 3 : Busan", desc: "Marché aux poissons et plages."},
-            {id: 3, coords: [37.5665, 126.9780], type: "all", title: "Étape 1 et 4 : Séoul", desc: "Retour à la capitale."}
+            {id: 0, coords: [37.5665, 126.9780], type: "all", title: "Étape 1 et 4 : Séoul", desc: "Capitale et palais royaux.", nuits: 6},
+            {id: 1, coords: [35.8242, 127.1480], type: "all", title: "Étape 2 : Jeonju", desc: "Village Hanok traditionnel.", nuits: 2},
+            {id: 2, coords: [35.1796, 129.0756], type: "all", title: "Étape 3 : Busan", desc: "Marché aux poissons et plages.", nuits: 5},
+            {id: 3, coords: [37.5665, 126.9780], type: "all", title: "Étape 1 et 4 : Séoul", desc: "Retour à la capitale.", nuits: 7}
         ];
         var coreeLayerGroup = L.layerGroup();
 
         var tunisieEtapesPoints = [
-            {id: 0, coords: [36.4000, 10.5167], type: "part1", title: "Base : Yasmine Hammamet", desc: "Point de départ de vos excursions locales."},
-            {id: 1, coords: [36.3167, 9.9333], type: "part1", title: "Zriba Olya", desc: "Ancien village berbère accroché à la montagne."},
-            {id: 2, coords: [36.4000, 9.9167], type: "part1", title: "Temples de l'eau de Zaghouan", desc: "Vestiges romains impressionnants au pied du Djebel Zaghouan."},
-            {id: 3, coords: [36.4000, 10.6167], type: "part1", title: "Hammamet", desc: "Visite de la médina fortifiée et des remparts."},
-            {id: 4, coords: [35.8256, 10.6369], type: "part1", title: "Sousse", desc: "Grande médina classée à l'UNESCO."},
-            {id: 5, coords: [35.7779, 10.6354], type: "part1", title: "Monastir", desc: "Découverte du Ribat dominant la Méditerranée."},
+            {id: 0, coords: [36.4000, 10.5167], type: "part1", title: "Base : Yasmine Hammamet", desc: "Point de départ de vos excursions locales.", nuits: 7},
+            {id: 1, coords: [36.3167, 9.9333], type: "part1", title: "Zriba Olya", desc: "Ancien village berbère accroché à la montagne.", nuits: 0},
+            {id: 2, coords: [36.4000, 9.9167], type: "part1", title: "Temples de l'eau de Zaghouan", desc: "Vestiges romains impressionnants au pied du Djebel Zaghouan.", nuits: 0},
+            {id: 3, coords: [36.4000, 10.6167], type: "part1", title: "Hammamet", desc: "Visite de la médina fortifiée et des remparts.", nuits: 0},
+            {id: 4, coords: [35.8256, 10.6369], type: "part1", title: "Sousse", desc: "Grande médina classée à l'UNESCO.", nuits: 0},
+            {id: 5, coords: [35.7779, 10.6354], type: "part1", title: "Monastir", desc: "Découverte du Ribat dominant la Méditerranée.", nuits: 0},
             
-            {id: 6, coords: [36.4000, 10.5167], type: "part2", title: "Départ : Yasmine Hammamet", desc: "Départ matinal vers le Grand Sud."},
-            {id: 7, coords: [35.2990, 10.7078], type: "part2", title: "Colisée d'El Jem", desc: "Immense amphithéâtre romain sur la route."},
-            {id: 8, coords: [33.5439, 8.9733], type: "part2", title: "Matmata", desc: "Maisons troglodytes souterraines creusées dans la roche."},
-            {id: 9, coords: [33.4300, 9.0800], type: "part2", title: "Camp Dunes Insolites (Douz)", desc: "Nuit magique au cœur des dunes de sable fin."},
-            {id: 10, coords: [33.9297, 8.4796], type: "part2", title: "Route du Lac Salé (Chott el-Jérid)", desc: "Traversée de l'immense étendue de sel scintillant."},
-            {id: 11, coords: [34.3190, 7.9351], type: "part2", title: "Oasis de Chebika", desc: "Oasis de montagne féerique et ses cascades."},
-            {id: 12, coords: [36.4000, 10.5167], type: "part2", title: "Retour : Yasmine Hammamet", desc: "Fin de l'expédition et retour à la base."},
+            {id: 6, coords: [36.4000, 10.5167], type: "part2", title: "Départ : Yasmine Hammamet", desc: "Départ matinal vers le Grand Sud.", nuits: 0},
+            {id: 7, coords: [35.2990, 10.7078], type: "part2", title: "Colisée d'El Jem", desc: "Immense amphithéâtre romain sur la route.", nuits: 0},
+            {id: 8, coords: [33.5439, 8.9733], type: "part2", title: "Matmata", desc: "Maisons troglodytes souterraines creusées dans la roche.", nuits: 0},
+            {id: 9, coords: [33.4300, 9.0800], type: "part2", title: "Camp Dunes Insolites (Douz)", desc: "Nuit magique au cœur des dunes de sable fin.", nuits: 1},
+            {id: 10, coords: [33.9297, 8.4796], type: "part2", title: "Route du Lac Salé (Chott el-Jérid)", desc: "Traversée de l'immense étendue de sel scintillant.", nuits: 0},
+            {id: 11, coords: [34.3190, 7.9351], type: "part2", title: "Oasis de Chebika", desc: "Oasis de montagne féerique et ses cascades.", nuits: 0},
+            {id: 12, coords: [36.4000, 10.5167], type: "part2", title: "Retour : Yasmine Hammamet", desc: "Fin de l'expédition et retour à la base.", nuits: 0},
 
-            {id: 13, coords: [36.4000, 10.5167], type: "part3", title: "Départ : Yasmine Hammamet", desc: "Route vers la capitale et le nord."},
-            {id: 14, coords: [36.8708, 10.3417], type: "part3", title: "Sidi Bou Saïd", desc: "Village pittoresque aux maisons bleues et blanches."},
-            {id: 15, coords: [36.8528, 10.3236], type: "part3", title: "Carthage", desc: "Site archéologique punique et romain chargé d'histoire."},
-            {id: 16, coords: [36.8065, 10.1815], type: "part3", title: "Tunis", desc: "Visite de la grande médina de Tunis et de ses souks."},
-            {id: 17, coords: [36.4000, 10.5167], type: "part3", title: "Retour : Yasmine Hammamet", desc: "Fin de l'excursion et retour à la base."}
+            {id: 13, coords: [36.4000, 10.5167], type: "part3", title: "Départ : Yasmine Hammamet", desc: "Route vers la capitale et le nord.", nuits: 0},
+            {id: 14, coords: [36.8708, 10.3417], type: "part3", title: "Sidi Bou Saïd", desc: "Village pittoresque aux maisons bleues et blanches.", nuits: 0},
+            {id: 15, coords: [36.8528, 10.3236], type: "part3", title: "Carthage", desc: "Site archéologique punique et romain chargé d'histoire.", nuits: 0},
+            {id: 16, coords: [36.8065, 10.1815], type: "part3", title: "Tunis", desc: "Visite de la grande médina de Tunis et de ses souks.", nuits: 0},
+            {id: 17, coords: [36.4000, 10.5167], type: "part3", title: "Retour : Yasmine Hammamet", desc: "Fin de l'excursion et retour à la base.", nuits: 0}
         ];
         var tunisieLayerGroup = L.layerGroup();
 
         var islandeEtapesPoints = [
-            {id: 0, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Capitale vibrante, point de départ et d'arrivée."},
-            {id: 1, coords: [64.8914, -23.7134], type: "all", title: "Étape 2 : Ólafsvík", desc: "Péninsule de Snæfellsnes."},
-            {id: 2, coords: [65.6835, -18.1056], type: "all", title: "Étape 3 : Akureyri", desc: "Capitale du Nord."},
-            {id: 3, coords: [65.2633, -14.4028], type: "all", title: "Étape 4 : Egilsstaðir", desc: "Porte des Fjords de l'Est."},
-            {id: 4, coords: [64.2530, -15.9348], type: "all", title: "Étape 5 : Hölmur", desc: "Paysages glaciaires."},
-            {id: 5, coords: [63.4186, -19.0060], type: "all", title: "Étape 6 : Vík", desc: "Plages de sable noir."},
-            {id: 6, coords: [63.9328, -21.0004], type: "all", title: "Étape 7 : Selfoss", desc: "Terres agricoles et Cercle d'Or."},
-            {id: 7, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Fin du voyage."}
+            {id: 0, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Capitale vibrante, point de départ et d'arrivée.", nuits: 2},
+            {id: 1, coords: [64.8914, -23.7134], type: "all", title: "Étape 2 : Ólafsvík", desc: "Péninsule de Snæfellsnes.", nuits: 2},
+            {id: 2, coords: [65.6835, -18.1056], type: "all", title: "Étape 3 : Akureyri", desc: "Capitale du Nord.", nuits: 2},
+            {id: 3, coords: [65.2633, -14.4028], type: "all", title: "Étape 4 : Egilsstaðir", desc: "Porte des Fjords de l'Est.", nuits: 1},
+            {id: 4, coords: [64.2530, -15.9348], type: "all", title: "Étape 5 : Hölmur", desc: "Paysages glaciaires.", nuits: 1},
+            {id: 5, coords: [63.4186, -19.0060], type: "all", title: "Étape 6 : Vík", desc: "Plages de sable noir.", nuits: 2},
+            {id: 6, coords: [63.9328, -21.0004], type: "all", title: "Étape 7 : Selfoss", desc: "Terres agricoles et Cercle d'Or.", nuits: 2},
+            {id: 7, coords: [64.1466, -21.9426], type: "all", title: "Étape 1 et 8 : Reykjavík", desc: "Fin du voyage.", nuits: 2}
         ];
         var islandeLayerGroup = L.layerGroup();
+
+        var cambodgeEtapesPoints = [
+            {id: 0, coords: [11.5564, 104.9282], type: "all", title: "Étape 1, 4 & 7 : Phnom Penh", desc: "Capitale vibrante et point de départ du périple.", nuits: 2},
+            {id: 1, coords: [13.0957, 103.2022], type: "all", title: "Étape 2 : Battambang", desc: "Campagne pittoresque et charme colonial.", nuits: 1},
+            {id: 2, coords: [13.3671, 103.8448], type: "all", title: "Étape 3 : Siem Reap", desc: "Porte d'entrée des temples légendaires d'Angkor.", nuits: 4},
+            {id: 3, coords: [11.5564, 104.9282], type: "all", title: "Étape 4 : Phnom Penh", desc: "Étape de transition dans la capitale.", nuits: 5},
+            {id: 4, coords: [12.9467, 107.1895], type: "all", title: "Étape 5 : Sen Monorom", desc: "Hauts plateaux du Mondulkiri et collines verdoyantes.", nuits: 1},
+            {id: 5, coords: [10.6104, 104.1755], type: "all", title: "Étape 6 : Kampot", desc: "Ambiance détendue au bord de l'eau et plantations de poivre.", nuits: 3},
+            {id: 6, coords: [10.7300, 103.2700], type: "all", title: "Étape 7 : Koh Rong", desc: "Île paradisiaque aux plages de sable blanc.", nuits: 5},
+            {id: 7, coords: [11.5564, 104.9282], type: "all", title: "Étape 8 : Phnom Penh", desc: "Retour final à la capitale pour la fin du voyage.", nuits: 1}
+        ];
+        var cambodgeLayerGroup = L.layerGroup();
 
         // Fonction pour créer l'épingle avec une image de drapeau officielle (code pays en minuscules)
         function creerEpineClassiqueAvecDrapeauImage(codePays) {
@@ -479,6 +497,9 @@
         var islandeMarker = L.marker([63.9850, -22.6056], {icon: creerEpineClassiqueAvecDrapeauImage('is')}).addTo(map);
         islandeMarker.bindPopup("<b>Islande 🇮🇸</b><br>Cliquez pour ouvrir le carnet.");
 
+        var cambodgeMarker = L.marker([12.5657, 104.9910], {icon: creerEpineClassiqueAvecDrapeauImage('kh')}).addTo(map);
+        cambodgeMarker.bindPopup("<b>Cambodge 🇰🇭</b><br>Cliquez pour ouvrir le carnet.");
+
         function attacherEvenementClic(marker, callback) {
             marker.on('click', function(e) {
                 L.DomEvent.stopPropagation(e);
@@ -504,7 +525,7 @@
             remplirSidebarTunisie("Tunisie 🇹🇳 - Carnet de Voyage", tunisieEtapesPoints);
 
             tunisieEtapesPoints.forEach(function(pt) {
-                var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b><br>${pt.desc}`);
+                var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b>`);
                 attacherEvenementClic(m, function() { activerEtape(pt.id); });
                 listeMarqueursActifs[pt.id] = m;
                 tunisieLayerGroup.addLayer(m);
@@ -519,7 +540,11 @@
         });
 
         attacherEvenementClic(islandeMarker, function() {
-            ouvrirVoyage([64.8, -18.5], 6, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#3498db');
+            ouvrirVoyage([64.8, -18.5], 6, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#e74c3c');
+        });
+
+        attacherEvenementClic(cambodgeMarker, function() {
+            ouvrirVoyage([12.2, 104.5], 7, "Cambodge 🇰🇭 - Carnet de Voyage", cambodgeEtapesPoints, cambodgeLayerGroup, '#e74c3c');
         });
 
         function ouvrirVoyage(coordsCentre, zoom, titre, points, layerGroup, couleur) {
@@ -528,7 +553,7 @@
             remplirSidebarSimple(titre, points);
             
             points.forEach(function(pt) {
-                var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b><br>${pt.desc}`);
+                var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b>`);
                 attacherEvenementClic(m, function() { activerEtape(pt.id); });
                 listeMarqueursActifs[pt.id] = m;
                 layerGroup.addLayer(m);
@@ -558,10 +583,12 @@
             map.removeLayer(coreedusudMarker);
             map.removeLayer(tunisieMarker);
             map.removeLayer(islandeMarker);
+            map.removeLayer(cambodgeMarker);
             map.removeLayer(albanieLayerGroup);
             map.removeLayer(coreeLayerGroup);
             map.removeLayer(tunisieLayerGroup);
             map.removeLayer(islandeLayerGroup);
+            map.removeLayer(cambodgeLayerGroup);
             listeMarqueursActifs = [];
         }
 
@@ -573,11 +600,16 @@
                 </div>
             `;
             points.forEach(function(pt, index) {
+                var badgeNuitsHtml = (pt.nuits && pt.nuits > 0) ? `<div class="route-info-badge" style="background-color: #fef5e7; color: #d35400;">🌙 ${pt.nuits} nuit${pt.nuits > 1 ? 's' : ''}</div>` : '';
+                
                 html += `
                     <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.id})">
                         <h4>${pt.title}</h4>
                         <p>${pt.desc}</p>
-                        ${index > 0 ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement...</div>` : ''}
+                        <div class="badges-container">
+                            ${badgeNuitsHtml}
+                            ${index > 0 ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement...</div>` : ''}
+                        </div>
                     </div>
                 `;
             });
@@ -604,12 +636,17 @@
             document.getElementById('sidebar-content').innerHTML = html;
         }
 
-        function creerCarteHtml(pt, avecBadge) {
+        function creerCarteHtml(pt, avecBadgeRoute) {
+            var badgeNuitsHtml = (pt.nuits && pt.nuits > 0) ? `<div class="route-info-badge" style="background-color: #fef5e7; color: #d35400;">🌙 ${pt.nuits} nuit${pt.nuits > 1 ? 's' : ''}</div>` : '';
+
             return `
                 <div class="step-card" id="step-card-${pt.id}" onclick="cliquerEtapeSidebar(${pt.id})">
                     <h4>${pt.title}</h4>
                     <p>${pt.desc}</p>
-                    ${avecBadge ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement...</div>` : ''}
+                    <div class="badges-container">
+                        ${badgeNuitsHtml}
+                        ${avecBadgeRoute ? `<div class="route-info-badge" id="info-leg-${pt.id}">⏳ Chargement...</div>` : ''}
+                    </div>
                 </div>
             `;
         }
@@ -696,11 +733,13 @@
             coreeLayerGroup.clearLayers();
             tunisieLayerGroup.clearLayers();
             islandeLayerGroup.clearLayers();
+            cambodgeLayerGroup.clearLayers();
             
             albanieMarker.addTo(map);
             coreedusudMarker.addTo(map);
             tunisieMarker.addTo(map);
             islandeMarker.addTo(map);
+            cambodgeMarker.addTo(map);
             
             var sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'none';
