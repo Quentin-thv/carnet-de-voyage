@@ -104,7 +104,7 @@
             gap: 10px;
         }
 
-        .btn-home-header, #btn-reouvrir-carnet {
+        .btn-home-header, #btn-reouvrir-carnet, .btn-stats-toggle {
             color: white;
             border: none;
             padding: 8px 14px;
@@ -121,6 +121,59 @@
 
         #btn-reouvrir-carnet { background-color: #3498db; display: none; }
         #btn-reouvrir-carnet:hover { background-color: #2980b9; }
+
+        .btn-stats-toggle { background-color: #2ecc71; }
+        .btn-stats-toggle:hover { background-color: #27ae60; }
+
+        /* Style du panneau de statistiques flottant */
+        #stats-bar {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            z-index: 1500;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 10px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-icon {
+            font-size: 1.2rem;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-valeur {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+
+        .stat-divider {
+            width: 1px;
+            height: 25px;
+            background-color: #ddd;
+        }
 
         .main-container {
             display: flex;
@@ -264,6 +317,20 @@
         @media screen and (max-width: 768px) {
             header p.subtitle { display: none; }
             .main-container { flex-direction: column-reverse; }
+            
+            #stats-bar {
+                top: auto;
+                bottom: 15px;
+                right: 15px;
+                left: 15px;
+                justify-content: space-around;
+                background: rgba(255, 255, 255, 0.98);
+            }
+
+            #stats-bar.hidden-mobile {
+                display: none;
+            }
+
             #sidebar {
                 position: absolute;
                 bottom: 0; left: 0;
@@ -281,7 +348,7 @@
 
     <div id="welcome-screen">
         <h1>🌍 Mes Voyages & Itinéraires</h1>
-        <p>Découvrez mes road-trips et croisières à travers le monde à travers des carnets de route interactifs.</p>
+        <p>Découvrez mes road-trips et séjours à travers le monde à travers des carnets de route interactifs.</p>
         <button class="btn-welcome" onclick="entrerSurLaCarte()">✨ Commencer le voyage</button>
     </div>
 
@@ -291,12 +358,32 @@
             <p class="subtitle">Cliquez sur une épingle pour ouvrir son carnet</p>
         </div>
         <div class="header-right">
+            <button class="btn-stats-toggle" onclick="toggleStatsBar()">📊 Stats</button>
             <button id="btn-reouvrir-carnet" onclick="reouvrirSidebar()">📖 Ouvrir le carnet</button>
             <button class="btn-home-header" onclick="fermerItineraireComplet()">🏠 Carte du Monde</button>
         </div>
     </header>
 
     <div class="main-container">
+        <!-- Bandeau de Statistiques Dynamique -->
+        <div id="stats-bar">
+            <div class="stat-item">
+                <span class="stat-icon">🚩</span>
+                <div class="stat-info">
+                    <span class="stat-valeur" id="stat-pays">0 / 195</span>
+                    <span class="stat-label">Pays</span>
+                </div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-icon">🗺️</span>
+                <div class="stat-info">
+                    <span class="stat-valeur" id="stat-continents">0 / 6</span>
+                    <span class="stat-label">Continents</span>
+                </div>
+            </div>
+        </div>
+
         <div id="sidebar"><div id="sidebar-content"></div></div>
         <div id="map"></div>
     </div>
@@ -305,6 +392,42 @@
     <script>
         var estMobile = window.innerWidth <= 768;
         var zoomMinAdapte = estMobile ? 2 : 3;
+
+        // Base de données des pays visités et leurs continents associés
+        var baseVoyages = [
+            { nom: "France", continent: "Europe" },
+            { nom: "Italie", continent: "Europe" },
+            { nom: "Espagne", continent: "Europe" },
+            { nom: "Tunisie", continent: "Afrique" },
+            { nom: "Albanie", continent: "Europe" },
+            { nom: "Corée du Sud", continent: "Asie" },
+            { nom: "Islande", continent: "Europe" },
+            { nom: "Cambodge", continent: "Asie" },
+            { nom: "Canada", continent: "Amérique du Nord" },
+            { nom: "Irlande", continent: "Europe" }
+        ];
+
+        function calculerStatistiques() {
+            var paysUniques = new Set();
+            var continentsUniques = new Set();
+
+            baseVoyages.forEach(function(item) {
+                paysUniques.add(item.nom);
+                continentsUniques.add(item.continent);
+            });
+
+            document.getElementById('stat-pays').innerText = paysUniques.size + " / 195";
+            document.getElementById('stat-continents').innerText = continentsUniques.size + " / 6";
+        }
+
+        function toggleStatsBar() {
+            var statsBar = document.getElementById('stats-bar');
+            if (statsBar.style.display === 'none') {
+                statsBar.style.display = 'flex';
+            } else {
+                statsBar.style.display = 'none';
+            }
+        }
 
         var map = L.map('map', {
             minZoom: zoomMinAdapte,
@@ -329,6 +452,9 @@
                 map.invalidateSize();
             }, 500);
         }
+
+        // Initialisation des stats au chargement
+        calculerStatistiques();
 
         var iconeNormale = new L.Icon.Default();
         var iconeRouge = new L.Icon({
@@ -453,6 +579,11 @@
         ];
         var irlandeLayerGroup = L.layerGroup();
 
+        var majorqueEtapesPoints = [
+            {id: 0, coords: [39.5177, 3.3007], title: "Séjour : Majorque 🇪🇸", desc: "1 semaine au Club Marmara — Détente & farniente.", nuits: 7}
+        ];
+        var majorqueLayerGroup = L.layerGroup();
+
         function creerEpineDrapeau(codePays) {
             return L.divIcon({
                 className: 'custom-pin-wrapper',
@@ -496,6 +627,7 @@
             })
         }).addTo(map).bindPopup("<b>Québec ⚜️</b>");
         var irlandeMarker = L.marker([53.4213, -6.2701], {icon: creerEpineDrapeau('ie')}).addTo(map).bindPopup("<b>Irlande 🇮🇪</b>");
+        var majorqueMarker = L.marker([39.5177, 3.3007], {icon: creerEpineDrapeau('es')}).addTo(map).bindPopup("<b>Majorque 🇪🇸</b>");
 
         function attacherEvenementClic(marker, callback) {
             marker.on('click', function(e) { L.DomEvent.stopPropagation(e); callback(e); });
@@ -507,7 +639,8 @@
         attacherEvenementClic(coreeMarker, function() { ouvrirVoyage([36.5, 127.5], 7, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c'); });
         attacherEvenementClic(islandeMarker, function() { ouvrirVoyage([64.8, -18.5], 6, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#e74c3c'); });
         attacherEvenementClic(canadaMarker, function() { ouvrirVoyage([47.5, -71.5], 6, "Québec ⚜️ - Road-Trip", canadaEtapesPoints, canadaLayerGroup, '#e74c3c'); });
-        
+        attacherEvenementClic(majorqueMarker, function() { ouvrirVoyage([39.5177, 3.3007], 12, "Majorque 🇪🇸 - Séjour Club Marmara", majorqueEtapesPoints, majorqueLayerGroup, '#e74c3c'); });
+
         // Gestion de la Croisière
         function ouvrirCroisiere() {
             map.setView([40.0, 8.0], 6);
@@ -550,7 +683,7 @@
             afficherSidebar();
         });
 
-        // Gestion du Cambodge (Affichage direct des étapes principales et Bis)
+        // Gestion du Cambodge
         attacherEvenementClic(cambodgeMarker, function() {
             map.setView([12.2, 104.5], 7);
             cacherTousLesMarqueursPrincipaux();
@@ -576,18 +709,15 @@
                 }
             });
 
-            // Route principale
             var pointsPrincipaux = cambodgeEtapesPoints.filter(p => !p.estBis);
             chargerRouteOsmComplet(pointsPrincipaux, cambodgeLayerGroup, '#e74c3c');
-
-            // Route Bis (violette) affichée d'office en trait plein
             tracerRouteBisParDefaut(3, cambodgeEtapesPoints, cambodgeLayerGroup);
 
             cambodgeLayerGroup.addTo(map);
             afficherSidebar();
         });
 
-        // Gestion de l'Irlande (Affichage direct des étapes principales et Bis)
+        // Gestion de l'Irlande
         attacherEvenementClic(irlandeMarker, function() {
             map.setView([53.6, -8.5], 8);
             cacherTousLesMarqueursPrincipaux();
@@ -603,12 +733,10 @@
                 irlandeLayerGroup.addLayer(m);
             });
 
-            // Route principale en boucle
             var pointsPrincipauxIrlande = irlandeEtapesPoints.filter(p => !p.estBis);
             var pointsRouteBoucle = pointsPrincipauxIrlande.concat([pointsPrincipauxIrlande[0]]);
             chargerRouteOsmComplet(pointsRouteBoucle, irlandeLayerGroup, '#e74c3c');
 
-            // Routes Bis (violettes) affichées d'office en trait plein
             tracerRouteBisParDefaut(0, irlandeEtapesPoints, irlandeLayerGroup);
             tracerRouteBisParDefaut(2, irlandeEtapesPoints, irlandeLayerGroup);
 
@@ -675,6 +803,7 @@
             map.removeLayer(cambodgeMarker);
             map.removeLayer(canadaMarker);
             map.removeLayer(irlandeMarker);
+            map.removeLayer(majorqueMarker);
             
             map.removeLayer(croisiereLayerGroup);
             map.removeLayer(albanieLayerGroup);
@@ -684,6 +813,7 @@
             map.removeLayer(cambodgeLayerGroup);
             map.removeLayer(canadaLayerGroup);
             map.removeLayer(irlandeLayerGroup);
+            map.removeLayer(majorqueLayerGroup);
             
             listeMarqueursActifs = [];
         }
@@ -772,7 +902,6 @@
         }
 
         function activerEtape(id) {
-            // Réinitialiser les icônes de tous les marqueurs
             Object.keys(listeMarqueursActifs).forEach(function(k) {
                 var m = listeMarqueursActifs[k];
                 if (m && m.options.icon !== iconeAncreCroisiere) {
@@ -781,15 +910,13 @@
                 }
             });
 
-            // Activer le marqueur sélectionné en rouge
             if (listeMarqueursActifs[id]) {
                 if (listeMarqueursActifs[id].options.icon !== iconeAncreCroisiere) {
                     listeMarqueursActifs[id].setIcon(iconeRouge);
                 }
-                map.setView(listeMarqueursActifs[id].getLatLng(), 8);
+                map.setView(listeMarqueursActifs[id].getLatLng(), 12);
             }
 
-            // Mettre en évidence la carte dans le panneau latéral
             document.querySelectorAll('.step-card').forEach(function(c) { c.classList.remove('active'); });
             var carteCible = document.getElementById('step-card-' + id);
             if (carteCible) {
@@ -847,6 +974,7 @@
             cambodgeLayerGroup.clearLayers();
             canadaLayerGroup.clearLayers();
             irlandeLayerGroup.clearLayers();
+            majorqueLayerGroup.clearLayers();
             
             croisiereMarker.addTo(map);
             albanieMarker.addTo(map);
@@ -856,6 +984,7 @@
             cambodgeMarker.addTo(map);
             canadaMarker.addTo(map);
             irlandeMarker.addTo(map);
+            majorqueMarker.addTo(map);
             
             var sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'none';
