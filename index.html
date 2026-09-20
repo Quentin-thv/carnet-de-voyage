@@ -8,7 +8,7 @@
     <!-- Intégration de Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
-    <!-- Styles CSS Unifiés -->
+    <!-- Styles CSS -->
     <style>
         body {
             margin: 0;
@@ -178,7 +178,6 @@
             border-left-color: #9b59b6;
             background: #fdfefe;
             margin-left: 15px;
-            display: none;
         }
 
         .step-card:hover { background: #e9ecef; }
@@ -345,7 +344,6 @@
         });
 
         var listeMarqueursActifs = [];
-        var routesBisLayers = {};
 
         // Données des pays et croisières
         var croisiereEtapesPoints = [
@@ -416,14 +414,14 @@
         var islandeLayerGroup = L.layerGroup();
 
         var cambodgeEtapesPoints = [
-            {id: 0, coords: [11.5564, 104.9282], title: "Étape 1, 4 & 7 : Phnom Penh", desc: "Capitale vibrante et point de départ.", nuits: 2},
+            {id: 0, coords: [11.5564, 104.9282], title: "Étape 1, 4 et 7 : Phnom Penh", desc: "Capitale vibrante et point de départ.", nuits: 2},
             {id: 1, coords: [13.0957, 103.2022], title: "Étape 2 : Battambang", desc: "Campagne pittoresque.", nuits: 1},
             {id: 2, coords: [13.3671, 103.8448], title: "Étape 3 : Siem Reap", desc: "Temples d'Angkor.", nuits: 4},
-            {id: 3, coords: [11.5564, 104.9282], title: "Étape 4 : Phnom Penh", desc: "Étape de transition.", nuits: 5},
-            {id: 4, coords: [12.9467, 107.1895], title: "Étape 5 : Sen Monorom", desc: "Plateaux du Mondulkiri.", nuits: 1},
-            {id: 5, coords: [10.6104, 104.1755], title: "Étape 6 : Kampot", desc: "Plantations de poivre.", nuits: 3},
-            {id: 6, coords: [10.7300, 103.2700], title: "Étape 7 : Koh Rong", desc: "Île paradisiaque.", nuits: 5},
-            {id: 7, coords: [11.5564, 104.9282], title: "Étape 8 : Phnom Penh", desc: "Retour final.", nuits: 1}
+            {id: 3, coords: [11.5564, 104.9282], title: "Étape 1, 4 et 7 : Phnom Penh", desc: "Séjour principal (hôtel conservé).", nuits: 5},
+            {id: 10, coords: [12.9467, 107.1895], title: "Étape Bis : Sen Monorom", desc: "Excursion nature 1 nuit (Mondulkiri).", nuits: 1, estBis: true, parentId: 3},
+            {id: 4, coords: [10.6104, 104.1755], title: "Étape 5 : Kampot", desc: "Plantations de poivre.", nuits: 3},
+            {id: 5, coords: [10.7300, 103.2700], title: "Étape 6 : Koh Rong", desc: "Île paradisiaque.", nuits: 5},
+            {id: 6, coords: [11.5564, 104.9282], title: "Étape 1, 4 et 7 : Phnom Penh", desc: "Retour final.", nuits: 1}
         ];
         var cambodgeLayerGroup = L.layerGroup();
 
@@ -508,10 +506,9 @@
         attacherEvenementClic(albanieMarker, function() { ouvrirVoyage([40.7, 19.9], 8, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c'); });
         attacherEvenementClic(coreeMarker, function() { ouvrirVoyage([36.5, 127.5], 7, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c'); });
         attacherEvenementClic(islandeMarker, function() { ouvrirVoyage([64.8, -18.5], 6, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#e74c3c'); });
-        attacherEvenementClic(cambodgeMarker, function() { ouvrirVoyage([12.2, 104.5], 7, "Cambodge 🇰🇭 - Carnet de Voyage", cambodgeEtapesPoints, cambodgeLayerGroup, '#e74c3c'); });
         attacherEvenementClic(canadaMarker, function() { ouvrirVoyage([47.5, -71.5], 6, "Québec ⚜️ - Road-Trip", canadaEtapesPoints, canadaLayerGroup, '#e74c3c'); });
         
-        // Gestion spécifique de la Croisière
+        // Gestion de la Croisière
         function ouvrirCroisiere() {
             map.setView([40.0, 8.0], 6);
             cacherTousLesMarqueursPrincipaux();
@@ -553,28 +550,90 @@
             afficherSidebar();
         });
 
-        // Gestion de l'Irlande
-        attacherEvenementClic(irlandeMarker, function() {
-            map.setView([53.6, -8.5], 8);
+        // Gestion du Cambodge (Affichage direct des étapes principales et Bis)
+        attacherEvenementClic(cambodgeMarker, function() {
+            map.setView([12.2, 104.5], 7);
             cacherTousLesMarqueursPrincipaux();
-            remplirSidebarIrlande("Irlande 🇮🇪 - Road-Trip", irlandeEtapesPoints);
+            remplirSidebarAvecBis("Cambodge 🇰🇭 - Carnet de Voyage", cambodgeEtapesPoints);
 
-            irlandeEtapesPoints.forEach(function(pt) {
-                if (!pt.estBis) {
-                    var m = L.marker(pt.coords).bindPopup(`<b>${pt.title}</b>`);
-                    attacherEvenementClic(m, function() { cliquerEtapeIrlande(pt.id); });
+            var coordsAffichees = {};
+
+            cambodgeEtapesPoints.forEach(function(pt) {
+                var iconAUtiliser = pt.estBis ? iconeBis : iconeNormale;
+                var cleCoord = pt.coords[0] + ',' + pt.coords[1];
+
+                if (!coordsAffichees[cleCoord] || pt.estBis) {
+                    var m = L.marker(pt.coords, {icon: iconAUtiliser}).bindPopup(`<b>${pt.title}</b>`);
+                    var idEtape = pt.id;
+                    attacherEvenementClic(m, function() { activerEtape(idEtape); });
+                    
                     listeMarqueursActifs[pt.id] = m;
-                    irlandeLayerGroup.addLayer(m);
+                    cambodgeLayerGroup.addLayer(m);
+
+                    if (!pt.estBis) coordsAffichees[cleCoord] = m;
+                } else {
+                    listeMarqueursActifs[pt.id] = coordsAffichees[cleCoord];
                 }
             });
 
+            // Route principale
+            var pointsPrincipaux = cambodgeEtapesPoints.filter(p => !p.estBis);
+            chargerRouteOsmComplet(pointsPrincipaux, cambodgeLayerGroup, '#e74c3c');
+
+            // Route Bis (violette) affichée d'office en trait plein
+            tracerRouteBisParDefaut(3, cambodgeEtapesPoints, cambodgeLayerGroup);
+
+            cambodgeLayerGroup.addTo(map);
+            afficherSidebar();
+        });
+
+        // Gestion de l'Irlande (Affichage direct des étapes principales et Bis)
+        attacherEvenementClic(irlandeMarker, function() {
+            map.setView([53.6, -8.5], 8);
+            cacherTousLesMarqueursPrincipaux();
+            remplirSidebarAvecBis("Irlande 🇮🇪 - Road-Trip", irlandeEtapesPoints);
+
+            irlandeEtapesPoints.forEach(function(pt) {
+                var iconAUtiliser = pt.estBis ? iconeBis : iconeNormale;
+                var m = L.marker(pt.coords, {icon: iconAUtiliser}).bindPopup(`<b>${pt.title}</b>`);
+                var idEtape = pt.id;
+                attacherEvenementClic(m, function() { activerEtape(idEtape); });
+                
+                listeMarqueursActifs[pt.id] = m;
+                irlandeLayerGroup.addLayer(m);
+            });
+
+            // Route principale en boucle
             var pointsPrincipauxIrlande = irlandeEtapesPoints.filter(p => !p.estBis);
             var pointsRouteBoucle = pointsPrincipauxIrlande.concat([pointsPrincipauxIrlande[0]]);
             chargerRouteOsmComplet(pointsRouteBoucle, irlandeLayerGroup, '#e74c3c');
 
+            // Routes Bis (violettes) affichées d'office en trait plein
+            tracerRouteBisParDefaut(0, irlandeEtapesPoints, irlandeLayerGroup);
+            tracerRouteBisParDefaut(2, irlandeEtapesPoints, irlandeLayerGroup);
+
             irlandeLayerGroup.addTo(map);
             afficherSidebar();
         });
+
+        function tracerRouteBisParDefaut(parentId, pointsData, layerGroup) {
+            var etapesBisLiees = pointsData.filter(p => p.parentId === parentId);
+            if (etapesBisLiees.length === 0) return;
+
+            var parentPoint = pointsData.find(p => p.id === parentId);
+            var pointsRoute = [parentPoint].concat(etapesBisLiees).concat([parentPoint]);
+            var coordsString = pointsRoute.map(p => p.coords[1] + ',' + p.coords[0]).join(';');
+
+            fetch('https://router.project-osrm.org/route/v1/driving/' + coordsString + '?overview=full&geometries=geojson')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.routes && data.routes.length > 0) {
+                        var latLngs = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                        var routeBisLayer = L.polyline(latLngs, { color: '#9b59b6', weight: 4, opacity: 0.85 });
+                        layerGroup.addLayer(routeBisLayer);
+                    }
+                });
+        }
 
         function ouvrirVoyage(coordsCentre, zoom, titre, points, layerGroup, couleur) {
             map.setView(coordsCentre, zoom);
@@ -627,7 +686,6 @@
             map.removeLayer(irlandeLayerGroup);
             
             listeMarqueursActifs = [];
-            routesBisLayers = {};
         }
 
         function remplirSidebarCroisiere(titreVoyage, points) {
@@ -664,15 +722,14 @@
             document.getElementById('sidebar-content').innerHTML = html;
         }
 
-        function remplirSidebarIrlande(titreVoyage, points) {
+        function remplirSidebarAvecBis(titreVoyage, points) {
             var html = `<div class="sidebar-header"><h2>${titreVoyage}</h2><button class="btn-quitter" onclick="fermerCarnetSeulement()">✕ Fermer</button></div>`;
             points.forEach(function(pt, index) {
                 var badgeNuitsHtml = (pt.nuits && pt.nuits > 0) ? `<div class="route-info-badge" style="background-color: #fef5e7; color: #d35400;">🌙 ${pt.nuits} nuit${pt.nuits > 1 ? 's' : ''}</div>` : '';
                 var classeBis = pt.estBis ? 'is-bis' : '';
-                var attributParent = pt.estBis ? `data-parent-id="${pt.parentId}"` : '';
-                
+
                 html += `
-                    <div class="step-card ${classeBis}" ${attributParent} id="step-card-${pt.id}" onclick="cliquerEtapeIrlande(${pt.id})">
+                    <div class="step-card ${classeBis}" id="step-card-${pt.id}" onclick="activerEtape(${pt.id})">
                         <h4>${pt.title}</h4>
                         <p>${pt.desc}</p>
                         <div class="badges-container">
@@ -714,74 +771,33 @@
             `;
         }
 
-        function cliquerEtapeIrlande(id) {
-            var etapesBisLiees = irlandeEtapesPoints.filter(p => p.parentId === id);
-
-            if (etapesBisLiees.length > 0) {
-                var cartesBis = document.querySelectorAll(`.step-card.is-bis[data-parent-id="${id}"]`);
-                if (cartesBis.length > 0) {
-                    var estActuellementOuvert = cartesBis[0].style.display === 'block';
-
-                    cartesBis.forEach(function(carte) { carte.style.display = estActuellementOuvert ? 'none' : 'block'; });
-
-                    etapesBisLiees.forEach(function(ptBis) {
-                        if (estActuellementOuvert) {
-                            if (listeMarqueursActifs[ptBis.id]) irlandeLayerGroup.removeLayer(listeMarqueursActifs[ptBis.id]);
-                        } else {
-                            var m = L.marker(ptBis.coords, {icon: iconeBis}).bindPopup(`<b>${ptBis.title}</b>`);
-                            attacherEvenementClic(m, function() { cliquerEtapeIrlande(ptBis.id); });
-                            listeMarqueursActifs[ptBis.id] = m;
-                            irlandeLayerGroup.addLayer(m);
-                        }
-                    });
-
-                    if (estActuellementOuvert && routesBisLayers[id]) {
-                        irlandeLayerGroup.removeLayer(routesBisLayers[id]);
-                        routesBisLayers[id] = null;
-                    } else if (!estActuellementOuvert && !routesBisLayers[id]) {
-                        var parentPoint = irlandeEtapesPoints.find(p => p.id === id);
-                        var pointsRoute = [parentPoint].concat(etapesBisLiees).concat([parentPoint]);
-                        var coordsString = pointsRoute.map(function(p) { return p.coords[1] + ',' + p.coords[0]; }).join(';');
-                        
-                        fetch('https://router.project-osrm.org/route/v1/driving/' + coordsString + '?overview=full&geometries=geojson')
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.routes && data.routes.length > 0) {
-                                    var latLngs = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-                                    var routeBisLayer = L.polyline(latLngs, { color: '#9b59b6', weight: 5, opacity: 0.85 });
-                                    irlandeLayerGroup.addLayer(routeBisLayer);
-                                    routesBisLayers[id] = routeBisLayer;
-                                }
-                            });
-                    }
-                }
-            }
-
-            activerEtape(id);
-            if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
-        }
-
         function activerEtape(id) {
-            listeMarqueursActifs.forEach(function(m, idx) {
-                if (m) {
-                    var ptRef = irlandeEtapesPoints.find(p => p.id === idx);
-                    if (m !== iconeAncreCroisiere) {
-                        m.setIcon(ptRef && ptRef.estBis ? iconeBis : iconeNormale);
-                    }
+            // Réinitialiser les icônes de tous les marqueurs
+            Object.keys(listeMarqueursActifs).forEach(function(k) {
+                var m = listeMarqueursActifs[k];
+                if (m && m.options.icon !== iconeAncreCroisiere) {
+                    var ptRef = irlandeEtapesPoints.concat(cambodgeEtapesPoints).find(p => p.id === parseInt(k));
+                    m.setIcon(ptRef && ptRef.estBis ? iconeBis : iconeNormale);
                 }
             });
+
+            // Activer le marqueur sélectionné en rouge
             if (listeMarqueursActifs[id]) {
                 if (listeMarqueursActifs[id].options.icon !== iconeAncreCroisiere) {
                     listeMarqueursActifs[id].setIcon(iconeRouge);
                 }
                 map.setView(listeMarqueursActifs[id].getLatLng(), 8);
             }
+
+            // Mettre en évidence la carte dans le panneau latéral
             document.querySelectorAll('.step-card').forEach(function(c) { c.classList.remove('active'); });
             var carteCible = document.getElementById('step-card-' + id);
             if (carteCible) {
                 carteCible.classList.add('active');
                 carteCible.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
+
+            if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
         }
 
         function chargerRouteOsmComplet(points, layerGroup, couleurRoute) {
