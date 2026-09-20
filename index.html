@@ -256,13 +256,19 @@
         }
         .pin-flag-badge img { width: 100%; height: 100%; object-fit: cover; }
 
+        .croisiere-anchor-only {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         @media screen and (max-width: 768px) {
             header p.subtitle { display: none; }
             .main-container { flex-direction: column-reverse; }
             #sidebar {
                 position: absolute;
                 bottom: 0; left: 0;
-                width: 100%; height: 30vh;
+                width: 100%; height: 35vh;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
                 border-radius: 20px 20px 0 0;
                 display: none;
@@ -276,7 +282,7 @@
 
     <div id="welcome-screen">
         <h1>🌍 Mes Voyages & Itinéraires</h1>
-        <p>Découvrez mes road-trips à travers le monde à travers des carnets de route interactifs.</p>
+        <p>Découvrez mes road-trips et croisières à travers le monde à travers des carnets de route interactifs.</p>
         <button class="btn-welcome" onclick="entrerSurLaCarte()">✨ Commencer le voyage</button>
     </div>
 
@@ -341,7 +347,19 @@
         var listeMarqueursActifs = [];
         var routesBisLayers = {};
 
-        // Données des pays
+        // Données des pays et croisières
+        var croisiereEtapesPoints = [
+            {id: 0, coords: [43.2965, 5.3698], title: "Étape 1 et 8 : Marseille 🇫🇷", desc: "Embarquement et port de départ.", nuits: 0},
+            {id: 1, coords: [44.4056, 8.9463], title: "Étape 2 : Gênes 🇮🇹", desc: "Escale historique en Ligurie.", nuits: 0},
+            {id: 2, coords: [40.8518, 14.2681], title: "Étape 3 : Naples 🇮🇹", desc: "Visite du centre historique et baie de Naples.", nuits: 0},
+            {id: 3, coords: [38.1157, 13.3615], title: "Étape 4 : Palerme 🇮🇹", desc: "Escale sicilienne et palais normands.", nuits: 0},
+            {id: 4, coords: [36.8065, 10.1815], title: "Étape 5 : Tunis (La Goulette) 🇹🇳", desc: "Escale nord-africaine, Médina & Carthage.", nuits: 0},
+            {id: 5, coords: [39.5696, 2.6502], title: "Étape 6 : Palma de Majorque 🇪🇸", desc: "Escale aux Baléares et cathédrale La Seu.", nuits: 0},
+            {id: 6, coords: [41.3851, 2.1734], title: "Étape 7 : Barcelone 🇪🇸", desc: "Escale catalane, Ramblas & Sagrada Família.", nuits: 0},
+            {id: 7, coords: [43.2965, 5.3698], title: "Étape 1 et 8 : Marseille 🇫🇷", desc: "Fin de la croisière et débarquement.", nuits: 0}
+        ];
+        var croisiereLayerGroup = L.layerGroup();
+
         var albanieEtapesPoints = [
             {id: 0, coords: [41.3275, 19.8187], title: "Étape 1 et 7 : Tirana", desc: "Point de départ et d'arrivée du road-trip.", nuits: 1},
             {id: 1, coords: [40.7058, 19.9522], title: "Étape 2 : Berat", desc: "La ville aux mille fenêtres.", nuits: 1},
@@ -450,6 +468,23 @@
             });
         }
 
+        var iconeAncreCroisiere = L.divIcon({
+            className: 'croisiere-anchor-only',
+            html: `
+                <div style="
+                    font-size: 26px;
+                    text-align: center;
+                    line-height: 1;
+                    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));
+                    cursor: pointer;
+                ">⚓</div>
+            `,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+            popupAnchor: [0, -14]
+        });
+
+        var croisiereMarker = L.marker([43.2965, 5.3698], {icon: iconeAncreCroisiere}).addTo(map).bindPopup("<b>Croisière Méditerranée ⚓</b>");
         var albanieMarker = L.marker([41.4147, 19.7206], {icon: creerEpineDrapeau('al')}).addTo(map).bindPopup("<b>Albanie 🇦🇱</b>");
         var coreeMarker = L.marker([37.4602, 126.4407], {icon: creerEpineDrapeau('kr')}).addTo(map).bindPopup("<b>Corée du Sud 🇰🇷</b>");
         var tunisieMarker = L.marker([36.8510, 10.2272], {icon: creerEpineDrapeau('tn')}).addTo(map).bindPopup("<b>Tunisie 🇹🇳</b>");
@@ -469,12 +504,34 @@
             marker.on('touchend', function(e) { L.DomEvent.stopPropagation(e); callback(e); });
         }
 
+        attacherEvenementClic(croisiereMarker, function() { ouvrirCroisiere(); });
         attacherEvenementClic(albanieMarker, function() { ouvrirVoyage([40.7, 19.9], 8, "Albanie 🇦🇱 - Carnet de Route", albanieEtapesPoints, albanieLayerGroup, '#e74c3c'); });
         attacherEvenementClic(coreeMarker, function() { ouvrirVoyage([36.5, 127.5], 7, "Corée du Sud 🇰🇷 - Carnet de Route", coreeEtapesPoints, coreeLayerGroup, '#e74c3c'); });
         attacherEvenementClic(islandeMarker, function() { ouvrirVoyage([64.8, -18.5], 6, "Islande 🇮🇸 - Tour de l'Île", islandeEtapesPoints, islandeLayerGroup, '#e74c3c'); });
         attacherEvenementClic(cambodgeMarker, function() { ouvrirVoyage([12.2, 104.5], 7, "Cambodge 🇰🇭 - Carnet de Voyage", cambodgeEtapesPoints, cambodgeLayerGroup, '#e74c3c'); });
         attacherEvenementClic(canadaMarker, function() { ouvrirVoyage([47.5, -71.5], 6, "Québec ⚜️ - Road-Trip", canadaEtapesPoints, canadaLayerGroup, '#e74c3c'); });
         
+        // Gestion spécifique de la Croisière
+        function ouvrirCroisiere() {
+            map.setView([40.0, 8.0], 6);
+            cacherTousLesMarqueursPrincipaux();
+            remplirSidebarCroisiere("Croisière Méditerranée ⚓", croisiereEtapesPoints);
+
+            croisiereEtapesPoints.forEach(function(pt) {
+                var m = L.marker(pt.coords, {icon: iconeAncreCroisiere}).bindPopup(`<b>${pt.title}</b>`);
+                attacherEvenementClic(m, function() { activerEtape(pt.id); });
+                listeMarqueursActifs[pt.id] = m;
+                croisiereLayerGroup.addLayer(m);
+            });
+
+            var coordsMaritime = croisiereEtapesPoints.map(p => p.coords);
+            var ligneMaritime = L.polyline(coordsMaritime, { color: '#0077b6', weight: 4, opacity: 0.85, dashArray: '8, 8' });
+            croisiereLayerGroup.addLayer(ligneMaritime);
+
+            croisiereLayerGroup.addTo(map);
+            afficherSidebar();
+        }
+
         // Gestion de la Tunisie
         attacherEvenementClic(tunisieMarker, function() {
             map.setView([35.2, 9.8], 7);
@@ -551,6 +608,7 @@
         }
 
         function cacherTousLesMarqueursPrincipaux() {
+            map.removeLayer(croisiereMarker);
             map.removeLayer(albanieMarker);
             map.removeLayer(coreeMarker);
             map.removeLayer(tunisieMarker);
@@ -559,6 +617,7 @@
             map.removeLayer(canadaMarker);
             map.removeLayer(irlandeMarker);
             
+            map.removeLayer(croisiereLayerGroup);
             map.removeLayer(albanieLayerGroup);
             map.removeLayer(coreeLayerGroup);
             map.removeLayer(tunisieLayerGroup);
@@ -569,6 +628,22 @@
             
             listeMarqueursActifs = [];
             routesBisLayers = {};
+        }
+
+        function remplirSidebarCroisiere(titreVoyage, points) {
+            var html = `<div class="sidebar-header"><h2>${titreVoyage}</h2><button class="btn-quitter" onclick="fermerCarnetSeulement()">✕ Fermer</button></div>`;
+            points.forEach(function(pt) {
+                html += `
+                    <div class="step-card" id="step-card-${pt.id}" onclick="activerEtape(${pt.id})">
+                        <h4>${pt.title}</h4>
+                        <p>${pt.desc}</p>
+                        <div class="badges-container">
+                            <div class="route-info-badge" style="background-color: #e8f8f5; color: #16a085;">⚓ Escale maritime</div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('sidebar-content').innerHTML = html;
         }
 
         function remplirSidebarSimple(titreVoyage, points) {
@@ -686,17 +761,20 @@
             if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
         }
 
-        // Zoom réduit (niveau 8) lors du clic sur une étape
         function activerEtape(id) {
             listeMarqueursActifs.forEach(function(m, idx) {
                 if (m) {
                     var ptRef = irlandeEtapesPoints.find(p => p.id === idx);
-                    m.setIcon(ptRef && ptRef.estBis ? iconeBis : iconeNormale);
+                    if (m !== iconeAncreCroisiere) {
+                        m.setIcon(ptRef && ptRef.estBis ? iconeBis : iconeNormale);
+                    }
                 }
             });
             if (listeMarqueursActifs[id]) {
-                listeMarqueursActifs[id].setIcon(iconeRouge);
-                map.setView(listeMarqueursActifs[id].getLatLng(), 8); 
+                if (listeMarqueursActifs[id].options.icon !== iconeAncreCroisiere) {
+                    listeMarqueursActifs[id].setIcon(iconeRouge);
+                }
+                map.setView(listeMarqueursActifs[id].getLatLng(), 8);
             }
             document.querySelectorAll('.step-card').forEach(function(c) { c.classList.remove('active'); });
             var carteCible = document.getElementById('step-card-' + id);
@@ -745,6 +823,7 @@
         }
 
         function fermerItineraireComplet() {
+            croisiereLayerGroup.clearLayers();
             albanieLayerGroup.clearLayers();
             coreeLayerGroup.clearLayers();
             tunisieLayerGroup.clearLayers();
@@ -753,6 +832,7 @@
             canadaLayerGroup.clearLayers();
             irlandeLayerGroup.clearLayers();
             
+            croisiereMarker.addTo(map);
             albanieMarker.addTo(map);
             coreeMarker.addTo(map);
             tunisieMarker.addTo(map);
